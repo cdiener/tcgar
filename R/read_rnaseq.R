@@ -30,67 +30,69 @@
 #' NULL
 #'
 #' @importFrom string str_match
-#' @importFrom data.table fread set tstrsplit ':='
+#' @importFrom data.table fread set tstrsplit ':=' setNames
 read_rnaseq <- function(folder, features="genes", normalization="XPM") {
+    files <- fread(file.path(folder, "file_manifest.txt"))
+    files <- setNames(files, gsub("\\s+","_",names(files)))
+    
+    mult <- 1
     if (features == "genes") {
         ann_idx <- c(1,4)
         if (normalization == "raw") {
-            files <- list.files(folder, pattern=".genes.results", full.names=TRUE)
+            files <- files[grep(".genes.results", File_Name)]
             data_idx <- 2
         } else  if (normalization == "XPM") {
-            files <- list.files(folder, pattern=".genes.results", full.names=TRUE)
+            files <- files[grep(".genes.results", File_Name)]
             data_idx <- 3
+            mult <- 1e6
         }
         else if (normalization == "Q75") {
-            files <- list.files(folder, pattern=".genes.normalized_results", full.names=TRUE)
+            files <- files[grep(".genes.normalized_results", File_Name)]
            data_idx <- 2 
         }
         else stop("Not a valid features/normalization combination.")
     } else if (features == "isoforms") {
         ann_idx <- c(1,4)
         if (normalization == "raw") {
-            files <- list.files(folder, pattern=".isoforms.results", full.names=TRUE)
+            files <- files[grep(".isoforms.results", File_Name)]
             data_idx <- 2
         } else  if (normalization == "XPM") {
-            files <- list.files(folder, pattern=".isoforms.results", full.names=TRUE)
+            files <- files[grep(".isoforms.results", File_Name)]
             data_idx <- 3
+            mult <- 1e6
         }
         else if (normalization == "Q75") {
-            files <- list.files(folder, pattern=".isoforms.normalized_results", full.names=TRUE)
+            files <- files[grep(".isoforms.normalized_results", File_Name)]
            data_idx <- 2 
         }
         else stop("Not a valid features/normalization combination.")
     } else if (features == "junctions") {
         ann_idx <- 1
-        if (normalization == "raw") {
-            files <- list.files(folder, pattern=".junction_quantification.txt", full.names=TRUE)
-            data_idx <- 2
-        } else  if (normalization == "XPM") {
-            files <- list.files(folder, pattern=".junction_quantification.txt", full.names=TRUE)
-            data_idx <- 4
-        }
+        files <- files[grep(".junctions_quantification.txt", File_Name)]
+        if (normalization == "raw") data_idx <- 2
+        else if (normalization == "XPM") data_idx <- 4
         else stop("Not a valid features/normalization combination.")
     } else if (features == "exons") {
         ann_idx <- c(1,3)
-        if (normalization == "raw") {
-            files <- list.files(folder, pattern=".genes.results", full.names=TRUE)
-            data_idx <- 2
-        } else  if (normalization == "XPM") {
-            files <- list.files(folder, pattern=".genes.results", full.names=TRUE)
-            data_idx <- 4
-        }
+        files <- files[grep(".exon_quantification.txt", File_Name)]
+        if (normalization == "raw") data_idx <- 2
+        else if (normalization == "XPM") data_idx <- 4
         else stop("Not a valid features/normalization combination.")
     }
     else stop("Not a valid feature type.")
     
-    tcga_uuid <- str_match(files, "\\.([0-9a-f]+-[0-9a-f]+-[0-9a-f]+-[0-9a-f]+-[0-9a-f]+)\\.")[,2]
+    tcga_uuid <- str_match(files$File_Name, "\\.([0-9a-f]+-[0-9a-f]+-[0-9a-f]+-[0-9a-f]+-[0-9a-f]+)\\.")[,2]
+    files[, "uuid" := tcga_uuid]
+    is_tumor <- as.numeric(tstrsplit(files$Sample, "-")[[4]]) < 10
+    files[, "Tissue_Type" := factor(c("normal", "tumor")[is_tumor + 1])]
     
-    res <- fread(files[1], select=ann_idx)
+    features <- fread(file.path(folder, files$File_Name[1]), select=ann_idx)
     
-    cols <- lapply(1:length(tcga_uuid), function(i) {
-        co <- fread(files[i], select=data_idx)[[1]]
-        res[, (tcga_uuid[i]) := co]
-        })
+    counts <- matrix(0, nrow=nrow(features), ncol=nrow(files))
+    for(i in 1:nrow(files)) {
+        counts[, i] <- mult*fread(file.path(folder, files$File_Name[i]), 
+        select=data_idx)[[1]]
+    }
     
-    return(res)
+    return(list(counts=round(counts), features=features, samples=files))
 }
