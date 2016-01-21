@@ -4,7 +4,7 @@
 \alias{read_rnaseq}
 \title{Reads RNA sequencing data from TCGA for several samples.}
 \usage{
-read_rnaseq(folder, features = "genes", normalization = "XPM")
+read_rnaseq(folder, features = "genes", normalization = "raw")
 }
 \arguments{
 \item{folder}{Folder where the data files reside.}
