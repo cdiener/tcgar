@@ -10,9 +10,9 @@
 #'
 #' More description...
 #' 
-#' @seealso \code{\link{bla}} for doing it slower.
+#' @seealso \code{\link{read_huex}} to read exon expression data.
 #' @export
-#' @keywords TCGA read
+#' @keywords TCGA read RNASeq
 #' @param folder Folder where the data files reside.
 #' @param features The feature type. Must be one of "genes", "isoforms",
 #'  "junctions" or "exons".

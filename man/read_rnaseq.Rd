@@ -35,8 +35,9 @@ NULL
 
 }
 \seealso{
-\code{\link{bla}} for doing it slower.
+\code{\link{read_huex}} to read exon expression data.
 }
+\keyword{RNASeq}
 \keyword{TCGA}
 \keyword{read}
 
