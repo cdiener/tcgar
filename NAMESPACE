@@ -2,6 +2,7 @@
 
 export(dostuff)
 export(read_clinical)
+export(read_huex)
 export(read_rnaseq)
 importFrom(data.table,':=')
 importFrom(data.table,fread)

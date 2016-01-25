@@ -4,7 +4,7 @@
 #  
 #  MIT license. See LICENSE for more information.
 
-UUID_RE = "\\.([0-9a-f]+-[0-9a-f]+-[0-9a-f]+-[0-9a-f]+-[0-9a-f]+)\\."
+#UUID_RE = "\\.([0-9a-f]+-[0-9a-f]+-[0-9a-f]+-[0-9a-f]+-[0-9a-f]+)\\."
 
 #' Reads RNA sequencing data from TCGA for several samples.
 #'
@@ -84,7 +84,7 @@ read_rnaseq <- function(folder, features="genes", normalization="raw") {
     }
     else stop("Not a valid feature type.")
     
-    tcga_uuid <- str_match(files$file_name, UUID_RE)[,2]
+    #tcga_uuid <- str_match(files$file_name, UUID_RE)[,2]
     #files[, "uuid" := tcga_uuid]
     files[, "barcode" := substr(barcode, 1, 16)]
     is_tumor <- as.numeric(tstrsplit(files$sample, "-", fixed=TRUE)[[4]]) < 10
