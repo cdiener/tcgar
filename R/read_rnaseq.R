@@ -34,9 +34,14 @@
 #' @importFrom stringr str_match
 #' @importFrom data.table fread set tstrsplit ':='
 read_rnaseq <- function(folder, features="genes", normalization="raw") {
+    if (!file.exists(file.path(folder, "file_manifest.txt")))
+        stop("Not a valid TCGA download folder!")
+    
     files <- fread(file.path(folder, "file_manifest.txt"))
-    files <- setNames(files, gsub("\\s+","_",names(files)))
-    colnames(files) <- tolower(colnames(files))
+    files <- setNames(files, gsub("\\s+","_",tolower(names(files))))
+    if (length(grep("RNASeqV2", files$platform)) == 0) {
+        stop("No RNASeq data found (need version 2)!")
+    }
     
     mult <- 1
     if (features == "genes") {
@@ -90,7 +95,6 @@ read_rnaseq <- function(folder, features="genes", normalization="raw") {
     is_tumor <- as.numeric(tstrsplit(files$sample, "-", fixed=TRUE)[[4]]) < 10
     files[, "tumor" := is_tumor]
     files[, "sample" := NULL]
-    rownames(files) <- files$barcode
     
     feat <- fread(file.path(folder, files$file_name[1]), select=ann_idx)
     if (features == "genes") {
@@ -106,7 +110,7 @@ read_rnaseq <- function(folder, features="genes", normalization="raw") {
             select=data_idx)[[1]]
     }
     cat("\n")
-    dimnames(counts) <- list(feat$entrez, files$sample)
+    dimnames(counts) <- list(feat$entrez, files$barcode)
     
     return(list(counts=counts, features=feat, samples=files))
 }

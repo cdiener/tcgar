@@ -24,8 +24,13 @@ SDRF_NAMES <- c("name", "barcode", "label", "id")
 #' x <- rnorm(1000)
 #' @importFrom data.table fread set ':='
 read_huex <- function(folder, features="genes") {
+    if (!file.exists(file.path(folder, "file_manifest.txt")))
+        stop("Not a valid TCGA download folder (missing file manifest)!")
+    
     files <- fread(file.path(folder, "file_manifest.txt"))
     files <- setNames(files, gsub("\\s+","_",tolower(names(files))))
+    if (length(grep("HuEx-1_0-st-v2", files$platform)) == 0)
+        stop("No HuEx exon transcription data found!")
     
     sdrf_path <- files[grep(".HuEx-1_0-st-v2.sdrf.txt", file_name), file_name]
     sdrf_path <- file.path(folder, sdrf_path)
@@ -42,6 +47,7 @@ read_huex <- function(folder, features="genes") {
         files <- files[grep(".HuEx-1_0-st-v2.\\d+.FIRMA.txt", file_name)]
         
     arrays <- lapply(files$file_name, function(fi) {
+        fi <- file.path(folder, fi)
         cols <- colnames(fread(fi, nrows=0, header=T))
         arr <- fread(fi, skip=2)
         rows <- arr[[1]]
