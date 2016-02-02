@@ -1,5 +1,5 @@
 Package: tcgar
-Title: A small helper package for using The Cancer Genome Atlas (TCGA) data.
+Title: A small helper package for using The Cancer Genome Atlas (TCGA) data
 Version: 0.0.0.9000
 Authors@R: person("Christian", "Diener", email = "mail@cdiener.com", role = c("aut", "cre"))
 Description: tcgar helps you to obtain and parse TCGA data for use in analysis
@@ -8,7 +8,7 @@ Depends:
     R (>= 3.2.2)
 Imports:
     data.table, stringr
-License: MIT (see LICENSE)
+License: MIT + file LICENSE
 LazyData: true
 Suggests:
     testthat

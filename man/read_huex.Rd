@@ -21,7 +21,9 @@ The function is currently limited to level 3 data since lower level data
 are not publically available.
 }
 \examples{
-x <- rnorm(1000)
+gbm <- system.file("extdata", "GBM", package = "tcgar")
+huex <- read_huex(gbm)
+
 }
 \seealso{
 \code{\link{read_rnaseq}} to read RNASeq data.

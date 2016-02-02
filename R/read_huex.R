@@ -21,7 +21,9 @@ SDRF_NAMES <- c("name", "barcode", "label", "id")
 #' @return A list with two elements, a matrix of log-expression values and a
 #'  data table giving additional information for samples.
 #' @examples
-#' x <- rnorm(1000)
+#' gbm <- system.file("extdata", "GBM", package = "tcgar")
+#' huex <- read_huex(gbm)
+#'
 #' @importFrom data.table fread set ':='
 read_huex <- function(folder, features="genes") {
     if (!file.exists(file.path(folder, "file_manifest.txt")))

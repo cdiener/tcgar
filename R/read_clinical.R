@@ -14,7 +14,7 @@ PATIENT_COLS <- c(bcr_patient_uuid="patient_uuid", bcr_patient_barcode="barcode"
     histological_type="histology", tumor_tissue_site="tissue_site", 
     clinical_M="M", clinical_N="N", clinical_T="T", clinical_stage="stage")
     
-SAMPLE_RE <- "biospecimen_sample_([a-z]{4})\\.txt"
+SAMPLE_RE <- "biospecimen_sample_([a-z]{2,4})\\.txt"
 
 #' Reads clinical data from TCGA for multiple samples.
 #'
@@ -35,6 +35,10 @@ SAMPLE_RE <- "biospecimen_sample_([a-z]{4})\\.txt"
 #'  vector elements will be the column names in the returned data table.
 #' @return A list with two data tables, samples and patient, containing the 
 #'  information for patients and samples.
+#' @examples
+#' gbm <- system.file("extdata", "GBM", package = "tcgar")
+#' clin <- read_clinical(gbm)
+#'
 #' @importFrom stringr str_match
 #' @importFrom data.table fread tstrsplit ':=' rbindlist
 read_clinical <- function(folder, add_sample_cols=NULL, add_patient_cols=NULL) {
@@ -70,7 +74,7 @@ read_clinical <- function(folder, add_sample_cols=NULL, add_patient_cols=NULL) {
         colnames(s) <- cols[cols %in% names(SAMPLE_COLS)]
         colnames(s) <- SAMPLE_COLS[colnames(s)]
         s$tumor <- s$tumor < 10
-        s$cancer_panel <- str_match(fi, SAMPLE_RE)[1,2]
+        s$cancer_panel <- toupper(str_match(fi, SAMPLE_RE)[1,2])
         s$sample_uuid <- tolower(s$sample_uuid)
         s$patient_uuid <- tolower(s$patient_uuid)
         s

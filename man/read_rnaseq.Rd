@@ -31,7 +31,8 @@ A data table containing the features as rows and the samples in the
 More description...
 }
 \examples{
-NULL
+gbm <- system.file("extdata", "GBM", package = "tcgar")
+rna <- read_rnaseq(gbm)
 
 }
 \seealso{

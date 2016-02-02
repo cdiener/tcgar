@@ -29,7 +29,8 @@
 #' @return A data table containing the features as rows and the samples in the
 #'  columns.
 #' @examples
-#' NULL
+#' gbm <- system.file("extdata", "GBM", package = "tcgar")
+#' rna <- read_rnaseq(gbm)
 #'
 #' @importFrom stringr str_match
 #' @importFrom data.table fread set tstrsplit ':='

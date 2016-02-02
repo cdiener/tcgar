@@ -28,6 +28,11 @@ This function assembles a data set with the major clinical indicators for each
 patient as well as sample procurement data for all the samples available for 
 each patient from TCGA Biotab data.
 }
+\examples{
+gbm <- system.file("extdata", "GBM", package = "tcgar")
+clin <- read_clinical(gbm)
+
+}
 \keyword{TCGA}
 \keyword{clinical}
 \keyword{read}
