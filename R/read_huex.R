@@ -41,7 +41,7 @@ read_huex <- function(folder, features="genes") {
     names(sdrf) <- SDRF_NAMES
     is_tumor <- as.numeric(sapply(sdrf$barcode, substr, 14, 15)) < 10
     sdrf$tumor <- is_tumor
-    sdrf[, "barcode" := sapply(barcode, substr, 0, 15)]
+    sdrf[, "barcode" := sapply(barcode, substr, 0, 16)]
     
     if (features == "genes")
         files <- files[grep(".HuEx-1_0-st-v2.\\d+.gene.txt", file_name)]
@@ -60,6 +60,23 @@ read_huex <- function(folder, features="genes") {
         arr
     })
     arrays <- do.call("cbind", arrays)
+
+    if (any(huex_bm$symbol != rownames(arrays)))
+        stop("Something is wrong with the features!")
     
-    return(list(assay=arrays, samples=sdrf))
+    return(list(assay=arrays, samples=sdrf, features=huex_bm))
 }
+
+#' Gene annotations for the TCGA HuEx data.
+#'
+#' This data set contains additional annotations for the HuEx features obtained
+#' from BioMart.
+#'
+#' @format A data frame with 18632 rows and 4 variables:
+#' \describe{
+#'   \item{ensgene}{Ensembl Gene ID}
+#'   \item{description}{Description of the Gene}
+#'   \item{symbol}{The Gene symbol}
+#'   \item{entrez}{Entrez Gene ID}
+#' }
+"huex_bm"

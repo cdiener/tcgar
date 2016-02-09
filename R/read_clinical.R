@@ -8,13 +8,15 @@ SAMPLE_COLS <- c(bcr_patient_uuid="patient_uuid", bcr_sample_barcode="barcode",
     bcr_sample_uuid="sample_uuid", days_to_collection="days_to_collection", 
     sample_type="sample_type", sample_type_id="tumor")  
 
-PATIENT_COLS <- c(bcr_patient_uuid="patient_uuid", bcr_patient_barcode="barcode", 
+PATIENT_COLS <- c(bcr_patient_uuid="patient_uuid", bcr_patient_barcode="patient_barcode", 
     gender="gender", vital_status="vital", last_contact_days_to="days_to_contact",
     death_days_to="days_to_death", birth_days_to="days_to_birth", 
     histological_type="histology", tumor_tissue_site="tissue_site", 
     clinical_M="M", clinical_N="N", clinical_T="T", clinical_stage="stage")
     
 SAMPLE_RE <- "biospecimen_sample_([a-z]{2,4})\\.txt"
+
+NA_VALS <- c("[Not Available]", "[Unknown]", "[Discrepancy]", "[Completed]")
 
 #' Reads clinical data from TCGA for multiple samples.
 #'
@@ -70,13 +72,15 @@ read_clinical <- function(folder, add_sample_cols=NULL, add_patient_cols=NULL) {
         fi <- file.path(folder, fi)
         cols <- colnames(fread(fi, nrows=0))
         s <- fread(fi, skip=2, select=which(cols %in% names(SAMPLE_COLS)), 
-            header=F, na.strings=c("[Not Available]", "[Unknown]"))
+            header=F, na.strings=NA_VALS, sep="\t")
         colnames(s) <- cols[cols %in% names(SAMPLE_COLS)]
         colnames(s) <- SAMPLE_COLS[colnames(s)]
         s$tumor <- s$tumor < 10
         s$cancer_panel <- toupper(str_match(fi, SAMPLE_RE)[1,2])
         s$sample_uuid <- tolower(s$sample_uuid)
-        s$patient_uuid <- tolower(s$patient_uuid)
+        s$patient_barcode <- substr(s$barcode, 1, 12)
+        if ("patient_uiid" %in% colnames(s))
+            s$patient_uuid <- tolower(s$patient_uuid)
         s
         })
     
@@ -84,7 +88,7 @@ read_clinical <- function(folder, add_sample_cols=NULL, add_patient_cols=NULL) {
         fi <- file.path(folder, fi)
         cols <- colnames(fread(fi, nrows=0))
         p <- fread(fi, skip=3, select=which(cols %in% names(PATIENT_COLS)), 
-            header=F, na.strings=c("[Not Available]", "[Unknown]"))
+            header=F, na.strings=NA_VALS, sep="\t")
         colnames(p) <- cols[cols %in% names(PATIENT_COLS)]
         colnames(p) <- PATIENT_COLS[colnames(p)]
         p$patient_uuid <- tolower(p$patient_uuid)

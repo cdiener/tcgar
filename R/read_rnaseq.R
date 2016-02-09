@@ -26,6 +26,7 @@
 #'      for genes and isoforms and reads per kilobase of transcript per million
 #'      (RPKM) for junctions and exons.}
 #'  }
+#' @param progress Logical. Show progress info?
 #' @return A data table containing the features as rows and the samples in the
 #'  columns.
 #' @examples
@@ -34,7 +35,8 @@
 #'
 #' @importFrom stringr str_match
 #' @importFrom data.table fread set tstrsplit ':='
-read_rnaseq <- function(folder, features="genes", normalization="raw") {
+read_rnaseq <- function(folder, features="genes", normalization="raw", 
+    progress=FALSE) {
     if (!file.exists(file.path(folder, "file_manifest.txt")))
         stop("Not a valid TCGA download folder!")
     
@@ -102,16 +104,35 @@ read_rnaseq <- function(folder, features="genes", normalization="raw") {
         feat[, c("symbol", "entrez") := tstrsplit(gene_id, "|", fixed=TRUE)]
         feat[, "gene_id" := NULL]
     }
+
+    if (any(rnaseq_bm$entrez != feat$entrez)) 
+        stop("Something is wrong with the features!")
     
     counts <- matrix(0, nrow=nrow(feat), ncol=nrow(files))  # pre-allocate
     for(i in 1:nrow(files)) {
-        cat("                                                               \r")
-        cat(sprintf("Reading experiment %d/%d...", i, nrow(files)))
+        if (progress) {
+            cat("                                                           \r")
+            cat(sprintf("Reading experiment %d/%d...", i, nrow(files)))
+        }
         counts[, i] <- mult * fread(file.path(folder, files$file_name[i]), 
             select=data_idx)[[1]]
     }
-    cat("\n")
+    if (progress) cat("\n")
     dimnames(counts) <- list(feat$entrez, files$barcode)
     
-    return(list(counts=counts, features=feat, samples=files))
+    return(list(counts=counts, features=rnaseq_bm, samples=files))
 }
+
+#' Gene annotations for the TCGA RNASeqV2 data.
+#'
+#' This data set contains additional annotations for the RNASeq features
+#' obtained from BioMart.
+#'
+#' @format A data frame with 20531 rows and 4 variables:
+#' \describe{
+#'   \item{ensgene}{Ensembl Gene ID}
+#'   \item{description}{Description of the Gene}
+#'   \item{symbol}{The Gene symbol}
+#'   \item{entrez}{Entrez Gene ID}
+#' }
+"rnaseq_bm"

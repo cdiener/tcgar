@@ -4,7 +4,8 @@
 \alias{read_rnaseq}
 \title{Reads RNA sequencing data from TCGA for several samples.}
 \usage{
-read_rnaseq(folder, features = "genes", normalization = "raw")
+read_rnaseq(folder, features = "genes", normalization = "raw",
+  progress = FALSE)
 }
 \arguments{
 \item{folder}{Folder where the data files reside.}
@@ -22,6 +23,8 @@ read_rnaseq(folder, features = "genes", normalization = "raw")
     for genes and isoforms and reads per kilobase of transcript per million
     (RPKM) for junctions and exons.}
 }}
+
+\item{progress}{Logical. Show progress info?}
 }
 \value{
 A data table containing the features as rows and the samples in the
