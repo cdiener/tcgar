@@ -38,7 +38,7 @@ efun <- function(er) NULL
 #' gbm <- system.file("extdata", "GBM", package = "tcgar")
 #' rna <- read_bulk(gbm)
 #'
-#' importFrom data.table rbindlist
+#' @importFrom data.table rbindlist
 read_bulk <- function(folders, what=c("HuEx", "RNASeqV2", "clinical"), 
     args=list(), stats=TRUE) {
     out <- list()

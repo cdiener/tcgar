@@ -31,7 +31,6 @@ combined correctly automatically.
 gbm <- system.file("extdata", "GBM", package = "tcgar")
 rna <- read_bulk(gbm)
 
-importFrom data.table rbindlist
 }
 \keyword{TCGA}
 \keyword{bulk}

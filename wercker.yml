@@ -9,5 +9,4 @@ build:
             code: Rscript -e "devtools::install()"
         - script:
             name: test package
-            code: Rscript -e "devtools::test()"
-            
+            code: Rscript -e "devtools::check()"
