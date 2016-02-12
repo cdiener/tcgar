@@ -7,7 +7,7 @@ Description: tcgar helps you to obtain and parse TCGA data for use in analysis
 Depends:
     R (>= 3.2.2)
 Imports:
-    data.table, stringr
+    data.table, stringr, RCurl
 License: MIT + file LICENSE
 LazyData: true
 Suggests:

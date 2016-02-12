@@ -6,7 +6,7 @@
 
 TCGA_FTP <- "https://tcga-data.nci.nih.gov/tcgafiles/ftp_auth/distro_ftpusers/anonymous/tumor/"
 
-FLRE <- "<a href=.+>(.+)</a>\\d-\\d-\\d"
+FLRE <- "<a href=.+>(.+)/</a>\\s+\\d+-\\d+-\\d+"
 order_versions <- function(vers) {
     vers <- strsplit(vers, "\\.")
     n <- max(sapply(vers, length))
@@ -16,10 +16,10 @@ order_versions <- function(vers) {
     return(do.call(order, vers, decreasing=T))
 }
 
-dir_list <- function(url) {
-    if (url.exists(url)) {
-        cont <- getURLContent(url)
-        ma <- str_match_all(url, FLRE)[[1]]
+dir_list <- function(site) {
+    if (url.exists(site)) {
+        cont <- getURLContent(site)
+        ma <- str_match_all(cont, FLRE)[[1]]
         return(ma[, 2])
     } else NULL
 }
