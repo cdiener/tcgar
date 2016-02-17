@@ -6,14 +6,9 @@
 
 TCGA_FTP <- "https://tcga-data.nci.nih.gov/tcgafiles/ftp_auth/distro_ftpusers/anonymous/tumor/"
 
-FLRE <- "<a href=.+>(.+)/</a>\\s+\\d+-\\d+-\\d+"
-order_versions <- function(vers) {
-    vers <- strsplit(vers, "\\.")
-    n <- max(sapply(vers, length))
-    vers <- lapply(vers, function(v){ length(v) <- n; v })
-    vers <- data.frame(t(data.frame(vers)))
-    
-    return(do.call(order, vers, decreasing=T))
+FLRE <- "<a href=.+>(.+)</a>\\s+\\d+-\\d+-\\d+"
+highest_version <- function(vers) {    
+    return(order(numeric_version(vers), decreasing=T)[1])
 }
 
 dir_list <- function(site) {
@@ -41,7 +36,8 @@ dir_list <- function(site) {
 #' @importFrom RCurl getURLContent url.exists
 get_panels <- function() {
     dirs <- dir_list(TCGA_FTP)
-    panels <- dirs[grep("^[a-z_]{2,}$", dirs)]
+    panels <- str_match(dirs, "^([a-z_]{2,})/$")
+    panels <- panels[!is.na(panels[,2]),2]
     return(toupper(panels))
 }
 

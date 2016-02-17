@@ -15,5 +15,5 @@ test_that("Exon expression data can be loaded", {
     expect_equal(names(huex), c("assay", "samples", "features"))
     expect_equal(class(huex$assay), "matrix")
     expect_equal(dim(huex$assay)[2], 29)
-    expect_equal(names(huex$samples), c("name", "barcode", "label", "id", "tumor"))
+    expect_equal(names(huex$samples), c("name", "barcode", "label", "id", "panel", "tumor"))
 })

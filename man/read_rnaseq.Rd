@@ -31,7 +31,13 @@ A data table containing the features as rows and the samples in the
  columns.
 }
 \description{
-More description...
+Reads RNASeqV2 Level 3 data downloaded from TCGA. The functions does some
+conservative checking in order to validate that all samples and features are
+annotated correctly. Also note that duplicate data (files with the same
+extract name) are dealt with implicitly. This will for instance occur if you
+have data for several Illumina technologies in the same directory (for TCGA
+mostly IlluminaGA or IlluminaHiSeq). The tie breaker used is to prefer HiSeq
+or use the last of the sorted file names if HiSeq is not available.
 }
 \examples{
 gbm <- system.file("extdata", "GBM", package = "tcgar")

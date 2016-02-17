@@ -1,12 +1,6 @@
-# General devtools build
-
 box: rocker/hadleyverse
-
 build:
-    steps:
-        - script:
-            name: install package
-            code: Rscript -e "devtools::install()"
-        - script:
-            name: test package
-            code: Rscript -e "devtools::check()"
+  steps:
+    - jimhester/r-dependencies
+    - jimhester/r-check
+    - jimhester/r-coverage

@@ -4,11 +4,37 @@
 #  
 #  MIT license. See LICENSE for more information.
 
-#UUID_RE = "\\.([0-9a-f]+-[0-9a-f]+-[0-9a-f]+-[0-9a-f]+-[0-9a-f]+)\\."
+RNA_SDRF_COLS <- c(1, 2, 15, 26)
+RNA_SDRF_NAMES <- c("name", "barcode", "genome", "panel")
+
+hiseq_or_last <- function(files) {
+    hiseq <- grep("HiSeq", files, value=T)
+    if (length(hiseq) > 0) return(hiseq[1]) else return(files[length(files)])
+}
+
+remove_dupes <- function(files, pref=hiseq_or_last) {
+    ids <- str_match(files, "unc\\.edu\\.([0-9a-z-]+)\\.")[,2]
+    dupes <- unique(ids[duplicated(ids)])
+    dupe_files <- files[ids %in% dupes]
+    clean_files <- tapply(dupe_files, ids[ids %in% dupes], pref)
+    files <- files[!(ids %in% dupes)]
+    ids <- ids[!(ids %in% dupes)]
+    files <- c(files, clean_files)
+    ids <- c(ids, dupes)
+    files <- files[order(ids)]
+    
+    return(list(files=files, ids=ids))
+}
 
 #' Reads RNA sequencing data from TCGA for several samples.
 #'
-#' More description...
+#' Reads RNASeqV2 Level 3 data downloaded from TCGA. The functions does some
+#' conservative checking in order to validate that all samples and features are
+#' annotated correctly. Also note that duplicate data (files with the same
+#' extract name) are dealt with implicitly. This will for instance occur if you
+#' have data for several Illumina technologies in the same directory (for TCGA
+#' mostly IlluminaGA or IlluminaHiSeq). The tie breaker used is to prefer HiSeq
+#' or use the last of the sorted file names if HiSeq is not available.
 #' 
 #' @seealso \code{\link{read_huex}} to read exon expression data.
 #' @export
@@ -34,93 +60,104 @@
 #' rna <- read_rnaseq(gbm)
 #'
 #' @importFrom stringr str_match
-#' @importFrom data.table fread set tstrsplit ':='
+#' @importFrom data.table fread set tstrsplit ':=' rbindlist
 read_rnaseq <- function(folder, features="genes", normalization="raw", 
     progress=FALSE) {
-    if (!file.exists(file.path(folder, "file_manifest.txt")))
-        stop("Not a valid TCGA download folder!")
-    
-    files <- fread(file.path(folder, "file_manifest.txt"))
-    files <- setNames(files, gsub("\\s+","_",tolower(names(files))))
-    if (length(grep("RNASeqV2", files$platform)) == 0) {
-        stop("No RNASeq data found (need version 2)!")
-    }
+    files <- list.files(folder, recursive=TRUE, full.names=TRUE)
     
     mult <- 1
     if (features == "genes") {
         ann_idx <- c(1,4)
         if (normalization == "raw") {
-            files <- files[grep(".genes.results", file_name)]
+            files <- grep(".genes.results", files, value=TRUE)
             data_idx <- 2
         } else  if (normalization == "XPM") {
-            files <- files[grep(".genes.results", file_name)]
+            files <- grep(".genes.results", files, value=TRUE)
             data_idx <- 3
             mult <- 1e6
         }
         else if (normalization == "Q75") {
-            files <- files[grep(".genes.normalized_results", file_name)]
+            files <- grep(".genes.normalized_results", files, value=TRUE)
            data_idx <- 2 
         }
         else stop("Not a valid features/normalization combination.")
     } else if (features == "isoforms") {
         ann_idx <- 1
         if (normalization == "raw") {
-            files <- files[grep(".isoforms.results", file_name)]
+            files <- grep(".isoforms.results", files, value=TRUE)
             data_idx <- 2
         } else  if (normalization == "XPM") {
-            files <- files[grep(".isoforms.results", file_name)]
+            files <- grep(".isoforms.results", files, value=TRUE)
             data_idx <- 3
             mult <- 1e6
         }
         else if (normalization == "Q75") {
-            files <- files[grep(".isoforms.normalized_results", file_name)]
+            files <- grep(".isoforms.normalized_results", files, value=TRUE)
             data_idx <- 2 
         }
         else stop("Not a valid features/normalization combination.")
     } else if (features == "junctions") {
         ann_idx <- 1
-        files <- files[grep(".junctions_quantification.txt", file_name)]
+        files <- grep(".junctions_quantification.txt", files, value=TRUE)
         if (normalization == "raw") data_idx <- 2
         else if (normalization == "XPM") data_idx <- 4
         else stop("Not a valid features/normalization combination.")
     } else if (features == "exons") {
         ann_idx <- c(1,3)
-        files <- files[grep(".exon_quantification.txt", file_name)]
+        files <- grep(".exon_quantification.txt", files, value=TRUE)
         if (normalization == "raw") data_idx <- 2
         else if (normalization == "XPM") data_idx <- 4
         else stop("Not a valid features/normalization combination.")
     }
     else stop("Not a valid feature type.")
     
-    #tcga_uuid <- str_match(files$file_name, UUID_RE)[,2]
-    #files[, "uuid" := tcga_uuid]
-    files[, "barcode" := substr(barcode, 1, 16)]
-    is_tumor <- as.numeric(tstrsplit(files$sample, "-", fixed=TRUE)[[4]]) < 10
-    files[, "tumor" := is_tumor]
-    files[, "sample" := NULL]
+    files <- remove_dupes(files)
+    ids <- files$ids
+    files <- files$files
     
-    feat <- fread(file.path(folder, files$file_name[1]), select=ann_idx)
+    sdrf_path <- list.files(path=folder, pattern="RNASeqV2.+\\.sdrf\\.txt", 
+        full.names=TRUE)
+    
+    sdrf <- lapply(sdrf_path, function(p) {
+        sdrf <- fread(p, na.strings="->", select=RNA_SDRF_COLS, 
+            colClasses="character")
+        names(sdrf) <- RNA_SDRF_NAMES
+        sdrf <- unique(sdrf, by="name")
+        is_tumor <- as.numeric(sapply(sdrf$barcode, substr, 14, 15)) < 10
+        sdrf$tumor <- is_tumor
+        sdrf$panel <- toupper(str_match(sdrf$panel, "unc\\.edu_(\\w+)\\.")[,2])
+        sdrf[, "barcode" := sapply(barcode, substr, 0, 16)]
+    })
+    sdrf <- rbindlist(sdrf)
+    sdrf <- unique(sdrf, by="name")
+
+    # Some of the public downloads are missing files, also order the names 
+    sdrf <- sdrf[name %in% ids]
+    sdrf <- sdrf[order(name)]
+    
+    feat <- fread(files[1], select=ann_idx)
     if (features == "genes") {
         feat[, c("symbol", "entrez") := tstrsplit(gene_id, "|", fixed=TRUE)]
         feat[, "gene_id" := NULL]
     }
 
+    if (any(sdrf$name != sort(ids))) stop("Some samples not annotated!")
+
     if (any(rnaseq_bm$entrez != feat$entrez)) 
         stop("Something is wrong with the features!")
     
-    counts <- matrix(0, nrow=nrow(feat), ncol=nrow(files))  # pre-allocate
-    for(i in 1:nrow(files)) {
+    counts <- matrix(0, nrow=nrow(feat), ncol=length(files))  # pre-allocate
+    for(i in 1:length(files)) {
         if (progress) {
             cat("                                                           \r")
-            cat(sprintf("Reading experiment %d/%d...", i, nrow(files)))
+            cat(sprintf("Reading experiment %d/%d...", i, length(files)))
         }
-        counts[, i] <- mult * fread(file.path(folder, files$file_name[i]), 
-            select=data_idx)[[1]]
+        counts[, i] <- mult * fread(files[i], select=data_idx)[[1]]
     }
     if (progress) cat("\n")
-    dimnames(counts) <- list(feat$entrez, files$barcode)
+    dimnames(counts) <- list(feat$entrez, sdrf$barcode)
     
-    return(list(counts=counts, features=rnaseq_bm, samples=files))
+    return(list(counts=counts, features=rnaseq_bm, samples=sdrf))
 }
 
 #' Gene annotations for the TCGA RNASeqV2 data.

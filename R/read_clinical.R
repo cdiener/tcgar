@@ -44,12 +44,13 @@ NA_VALS <- c("[Not Available]", "[Unknown]", "[Discrepancy]", "[Completed]")
 #' @importFrom stringr str_match
 #' @importFrom data.table fread tstrsplit ':=' rbindlist
 read_clinical <- function(folder, add_sample_cols=NULL, add_patient_cols=NULL) {
-    files <- fread(file.path(folder, "file_manifest.txt"))
-    files <- setNames(files, gsub("\\s+","_",names(files)))
-    colnames(files) <- tolower(colnames(files))
+    files <- list.files(folder, full.names=T)
     
-    sample_files = files[grep("nationwidechildrens.org_biospecimen_sample", file_name)]
-    patient_files = files[grep("nationwidechildrens.org_clinical_patient", file_name)]
+    sample_files = grep("nationwidechildrens.org_biospecimen_sample", files, value=TRUE)
+    patient_files = grep("nationwidechildrens.org_clinical_patient", files, value=TRUE)
+    
+    if (length(sample_files) == 0 || length(patient_files) == 0)
+        stop("At least one clinical data file missing!")
     
     # Add additional columns, if no names are given orginal column names are
     # conserved
@@ -68,8 +69,7 @@ read_clinical <- function(folder, add_sample_cols=NULL, add_patient_cols=NULL) {
         pc <- c(pc, add_patient_cols)
     }
     
-    samples <- lapply(sample_files$file_name, function(fi) {
-        fi <- file.path(folder, fi)
+    samples <- lapply(sample_files, function(fi) {
         cols <- colnames(fread(fi, nrows=0))
         s <- fread(fi, skip=2, select=which(cols %in% names(SAMPLE_COLS)), 
             header=F, na.strings=NA_VALS, sep="\t")
@@ -84,8 +84,7 @@ read_clinical <- function(folder, add_sample_cols=NULL, add_patient_cols=NULL) {
         s
         })
     
-    patients <- lapply(patient_files$file_name, function(fi) {
-        fi <- file.path(folder, fi)
+    patients <- lapply(patient_files, function(fi) {
         cols <- colnames(fread(fi, nrows=0))
         p <- fread(fi, skip=3, select=which(cols %in% names(PATIENT_COLS)), 
             header=F, na.strings=NA_VALS, sep="\t")
