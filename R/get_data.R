@@ -28,7 +28,7 @@ download_clin <- function(base, out, method="auto", quiet=TRUE) {
     
     if (any(sapply(files, length) == 0)) return(NULL)
     
-    sapply(files, function(f) download.file(paste0(base, "/", f), 
+    sapply(files, function(f) download.file(paste0(base, f), 
         file.path(out,f), method=method, quiet=quiet))
     
     invisible(files)
@@ -43,7 +43,7 @@ download_rna <- function(base, out, method="auto", quiet=TRUE) {
     rna_file <- rna_files[highest_version(rna_files[,4]), ]
     
     if (!file.exists(file.path(out, rna_file[1])))
-        download.file(paste0(base, "/", rna_file[1]), file.path(out, rna_file[1]), 
+        download.file(paste0(base, rna_file[1]), file.path(out, rna_file[1]), 
             method=method, quiet=quiet)
     
     sdrf <- download_sdrf(files, base, out, method, quiet)
@@ -59,7 +59,7 @@ download_huex <- function(base, out, method="auto", quiet=TRUE) {
     if (length(huex_files) == 0) return(NULL)
     
     sapply(huex_files[,1], function(f) if (!file.exists(file.path(out, f))) 
-        download.file(paste0(base, "/", f), file.path(out, f), method=method, 
+        download.file(paste0(base, f), file.path(out, f), method=method, 
             quiet=quiet))
     
     sdrf <- download_sdrf(files, base, out, method, quiet)
@@ -126,7 +126,7 @@ get_data <- function(panel, tech="clinical", out=toupper(panel), extract=TRUE,
     if (extract) {
         tars <- list.files(out, pattern="\\.tar\\.gz", full.names=TRUE)
         sapply(tars, untar, compressed=TRUE, exdir=out)
-        file.remove(tars)
+        dummy <- file.remove(tars)
     }
 }
 

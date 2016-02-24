@@ -16,7 +16,8 @@ PATIENT_COLS <- c(bcr_patient_uuid="patient_uuid", bcr_patient_barcode="patient_
     
 SAMPLE_RE <- "biospecimen_sample_([a-z]{2,4})\\.txt"
 
-NA_VALS <- c("[Not Available]", "[Unknown]", "[Discrepancy]", "[Completed]")
+NA_VALS <- c("[Not Available]", "[Not Applicable]", "[Unknown]", 
+    "[Discrepancy]", "[Completed]")
 
 #' Reads clinical data from TCGA for multiple samples.
 #'
@@ -76,7 +77,7 @@ read_clinical <- function(folder, add_sample_cols=NULL, add_patient_cols=NULL) {
         colnames(s) <- cols[cols %in% names(SAMPLE_COLS)]
         colnames(s) <- SAMPLE_COLS[colnames(s)]
         s$tumor <- s$tumor < 10
-        s$cancer_panel <- toupper(str_match(fi, SAMPLE_RE)[1,2])
+        s$panel <- toupper(str_match(fi, SAMPLE_RE)[1,2])
         s$sample_uuid <- tolower(s$sample_uuid)
         s$patient_barcode <- substr(s$barcode, 1, 12)
         if ("patient_uiid" %in% colnames(s))

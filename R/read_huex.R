@@ -63,6 +63,8 @@ read_huex <- function(folder, features="genes") {
     
     if (any(as.numeric(sdrf$id) != as.numeric(colnames(arrays)))) 
         stop("Sample IDs do not match between assay and annotation!")
+        
+    colnames(arrays) <- sdrf$barcode
     
     if (any(huex_bm$symbol != rownames(arrays)))
         stop("Something is wrong with the features!")
