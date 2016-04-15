@@ -21,7 +21,7 @@ working directory.}
 
 \item{extract}{Boolean. Whether to extract the data after download.}
 
-\item{method}{Passed to \code{\link{download.file}}. Specifies the download 
+\item{method}{Passed to \code{\link{download.file}}. Specifies the download
 method. Defaults to 'auto'.}
 
 \item{quiet}{Passed to \code{\link{download.file}}. Specifies whether download
@@ -35,16 +35,17 @@ This will download all data for a given cancer panel and technology as
 a given cancer type and extract it.
 }
 \details{
-\emph{Note that you should not extract several downloads of the same technology 
-to the same folder as this will be incompatible with the \code{read_*} 
+\emph{Note that you should not extract several downloads of the same technology
+to the same folder as this will be incompatible with the \code{read_*}
 functions.}
 }
 \examples{
 d <- tempdir()
 get_data("GBM", out=d)
+
 }
 \seealso{
-\code{\link{read_bulk}} to read data from several folders and 
+\code{\link{read_bulk}} to read data from several folders and
  technologies.
 }
 \keyword{TCGA}
