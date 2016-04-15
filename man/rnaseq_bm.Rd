@@ -15,7 +15,7 @@
 rnaseq_bm
 }
 \description{
-This data set contains additional annotations for the RNASeq features
+This data set contains additional annotations for the RNASeq genes
 obtained from BioMart.
 }
 \keyword{datasets}

@@ -17,7 +17,7 @@ read_rnaseq(folder, features = "genes", normalization = "raw",
 \describe{
     \item{"raw"}{The raw counts.}
     \item{"Q75"}{Normalization by dividing through the 75% quantile of the
-    raw counts (TCGA default). This only available for transcripts and 
+    raw counts (TCGA default). This only available for transcripts and
     isoforms.}
     \item{"XPM"}{X per million. This will use transcripts per million (TPM)
     for genes and isoforms and reads per kilobase of transcript per million

@@ -1,7 +1,7 @@
 #  template.R
-#  
+#
 #  Copyright 2015 Christian Diener <mail[at]cdiener.com>
-#  
+#
 #  MIT license. See LICENSE for more information.
 
 HUEX_RE <- "lbl\\.gov_(\\w+)\\.HuEx-1_0-st-v2\\.\\d+.+\\.txt"
@@ -9,12 +9,15 @@ PANEL_RE <- "lbl\\.gov_(\\w+)\\."
 HUEX_SDRF_COLS <- c(13, 14, 17, 19, 24)
 HUEX_SDRF_NAMES <- c("name", "barcode", "label", "id", "panel")
 
+# To fix stupid CRAN notes
+utils::globalVariables(c("barcode", "id"))
+
 #' Reads HuEx 1.0 st v2 exon expression data from the TCGA project.
 #'
 #' This reads level 3 data for exon expression data for the TCGA project.
 #' The function is currently limited to level 3 data since lower level data
 #' are not publically available.
-#' 
+#'
 #' @seealso \code{\link{read_rnaseq}} to read RNASeq data.
 #' @export
 #' @keywords HuEx microarray TCGA
@@ -26,26 +29,27 @@ HUEX_SDRF_NAMES <- c("name", "barcode", "label", "id", "panel")
 #' gbm <- system.file("extdata", "GBM", package = "tcgar")
 #' huex <- read_huex(gbm)
 #'
-#' @importFrom data.table fread set ':='
+#' @importFrom data.table data.table fread set ':='
 read_huex <- function(folder, features="genes") {
-    files <- list.files(path=folder, pattern=HUEX_RE, recursive=T, full.names=T) 
+    files <- list.files(path=folder, pattern=HUEX_RE, recursive=T, full.names=T)
     if (length(files) == 0) stop("No HuEx exon transcription data found!")
-    
-    sdrf_path <- list.files(path=folder, pattern="\\.HuEx-1_0-st-v2\\.sdrf\\.txt", 
+
+    sdrf_path <- list.files(path=folder, pattern="\\.HuEx-1_0-st-v2\\.sdrf\\.txt",
         full.names=TRUE)
-    sdrf <- fread(sdrf_path, na.strings="->", select=HUEX_SDRF_COLS, 
+    sdrf <- fread(sdrf_path, na.strings="->", select=HUEX_SDRF_COLS,
         colClasses="character")
     names(sdrf) <- HUEX_SDRF_NAMES
     is_tumor <- as.numeric(sapply(sdrf$barcode, substr, 14, 15)) < 10
     sdrf$tumor <- is_tumor
     sdrf$panel <- toupper(str_match(sdrf$panel, PANEL_RE)[,2])
     sdrf[, "barcode" := sapply(barcode, substr, 0, 16)]
-    
-    if (features == "genes")
+
+    if (features == "genes") {
         files <- grep("HuEx-1_0-st-v2.\\d+\\.gene\\.txt", files, value=TRUE)
-    else 
+    }
+    else
         files <- grep("HuEx-1_0-st-v2\\.\\d+\\.FIRMA\\.txt", files, value=TRUE)
-        
+
     arrays <- lapply(files, function(fi) {
         cols <- colnames(fread(fi, nrows=0, header=T))
         arr <- fread(fi, skip=2)
@@ -58,18 +62,17 @@ read_huex <- function(folder, features="genes") {
     })
     arrays <- do.call("cbind", arrays)
     arrays <- arrays[, sort(colnames(arrays))]
+    if (features == "genes") feat <- data.table(symbol=rownames(arrays))
+    else feat <- data.table(ID=rownames(arrays))
 
     sdrf <- sdrf[order(id)]
-    
-    if (any(as.numeric(sdrf$id) != as.numeric(colnames(arrays)))) 
+
+    if (any(as.numeric(sdrf$id) != as.numeric(colnames(arrays))))
         stop("Sample IDs do not match between assay and annotation!")
-        
+
     colnames(arrays) <- sdrf$barcode
-    
-    if (any(huex_bm$symbol != rownames(arrays)))
-        stop("Something is wrong with the features!")
-    
-    return(list(assay=arrays, samples=sdrf, features=huex_bm))
+
+    return(list(assay=arrays, samples=sdrf, features=feat))
 }
 
 #' Gene annotations for the TCGA HuEx data.

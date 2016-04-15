@@ -1,11 +1,14 @@
 Package: tcgar
 Title: A small helper package for using The Cancer Genome Atlas (TCGA) data
-Version: 0.0.0.9000
+Version: 0.0.3
 Authors@R: person("Christian", "Diener", email = "mail@cdiener.com", role = c("aut", "cre"))
 Description: tcgar helps you to obtain and parse TCGA data for use in analysis
-    pipelines such as the ones in bioconductor.
+    pipelines such as the ones in bioconductor. In comparison to other packages
+    tcgar aims to help you to download a lot of data at once and to read it fast.
+    For instance you can download all the data for a given technology with
+    two lines of code and reading it will take only a few minutes at most.
 Depends:
-    R (>= 3.2.2)
+    R (>= 3.2)
 Imports:
     data.table, stringr, RCurl
 License: MIT + file LICENSE

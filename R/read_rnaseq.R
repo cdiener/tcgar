@@ -1,11 +1,14 @@
 #  read_rnaseq.R
-#  
+#
 #  Copyright 2015 Christian Diener <mail[at]cdiener.com>
-#  
+#
 #  MIT license. See LICENSE for more information.
 
 RNA_SDRF_COLS <- c(1, 2, 15, 26)
 RNA_SDRF_NAMES <- c("name", "barcode", "genome", "panel")
+
+# To fix stupid CRAN notes
+utils::globalVariables(c("gene_id", "name"))
 
 hiseq_or_last <- function(files) {
     hiseq <- grep("HiSeq", files, value=T)
@@ -22,7 +25,7 @@ remove_dupes <- function(files, pref=hiseq_or_last) {
     files <- c(files, clean_files)
     ids <- c(ids, dupes)
     files <- files[order(ids)]
-    
+
     return(list(files=files, ids=ids))
 }
 
@@ -35,7 +38,7 @@ remove_dupes <- function(files, pref=hiseq_or_last) {
 #' have data for several Illumina technologies in the same directory (for TCGA
 #' mostly IlluminaGA or IlluminaHiSeq). The tie breaker used is to prefer HiSeq
 #' or use the last of the sorted file names if HiSeq is not available.
-#' 
+#'
 #' @seealso \code{\link{read_huex}} to read exon expression data.
 #' @export
 #' @keywords TCGA read RNASeq
@@ -46,7 +49,7 @@ remove_dupes <- function(files, pref=hiseq_or_last) {
 #'  \describe{
 #'      \item{"raw"}{The raw counts.}
 #'      \item{"Q75"}{Normalization by dividing through the 75% quantile of the
-#'      raw counts (TCGA default). This only available for transcripts and 
+#'      raw counts (TCGA default). This only available for transcripts and
 #'      isoforms.}
 #'      \item{"XPM"}{X per million. This will use transcripts per million (TPM)
 #'      for genes and isoforms and reads per kilobase of transcript per million
@@ -61,10 +64,10 @@ remove_dupes <- function(files, pref=hiseq_or_last) {
 #'
 #' @importFrom stringr str_match
 #' @importFrom data.table fread set tstrsplit ':=' rbindlist
-read_rnaseq <- function(folder, features="genes", normalization="raw", 
+read_rnaseq <- function(folder, features="genes", normalization="raw",
     progress=FALSE) {
     files <- list.files(folder, recursive=TRUE, full.names=TRUE)
-    
+
     mult <- 1
     if (features == "genes") {
         ann_idx <- c(1,4)
@@ -78,7 +81,7 @@ read_rnaseq <- function(folder, features="genes", normalization="raw",
         }
         else if (normalization == "Q75") {
             files <- grep(".genes.normalized_results", files, value=TRUE)
-           data_idx <- 2 
+           data_idx <- 2
         }
         else stop("Not a valid features/normalization combination.")
     } else if (features == "isoforms") {
@@ -93,12 +96,12 @@ read_rnaseq <- function(folder, features="genes", normalization="raw",
         }
         else if (normalization == "Q75") {
             files <- grep(".isoforms.normalized_results", files, value=TRUE)
-            data_idx <- 2 
+            data_idx <- 2
         }
         else stop("Not a valid features/normalization combination.")
     } else if (features == "junctions") {
         ann_idx <- 1
-        files <- grep(".junctions_quantification.txt", files, value=TRUE)
+        files <- grep(".junction_quantification.txt", files, value=TRUE)
         if (normalization == "raw") data_idx <- 2
         else if (normalization == "XPM") data_idx <- 4
         else stop("Not a valid features/normalization combination.")
@@ -110,16 +113,16 @@ read_rnaseq <- function(folder, features="genes", normalization="raw",
         else stop("Not a valid features/normalization combination.")
     }
     else stop("Not a valid feature type.")
-    
+
     files <- remove_dupes(files)
     ids <- files$ids
     files <- files$files
-    
-    sdrf_path <- list.files(path=folder, pattern="RNASeqV2.+\\.sdrf\\.txt", 
+
+    sdrf_path <- list.files(path=folder, pattern="RNASeqV2.+\\.sdrf\\.txt",
         full.names=TRUE)
-    
+
     sdrf <- lapply(sdrf_path, function(p) {
-        sdrf <- fread(p, na.strings="->", select=RNA_SDRF_COLS, 
+        sdrf <- fread(p, na.strings="->", select=RNA_SDRF_COLS,
             colClasses="character")
         names(sdrf) <- RNA_SDRF_NAMES
         sdrf <- unique(sdrf, by="name")
@@ -131,10 +134,10 @@ read_rnaseq <- function(folder, features="genes", normalization="raw",
     sdrf <- rbindlist(sdrf)
     sdrf <- unique(sdrf, by="name")
 
-    # Some of the public downloads are missing files, also order the names 
+    # Some of the public downloads are missing files, also order the names
     sdrf <- sdrf[name %in% ids]
     sdrf <- sdrf[order(name)]
-    
+
     feat <- fread(files[1], select=ann_idx)
     if (features == "genes") {
         feat[, c("symbol", "entrez") := tstrsplit(gene_id, "|", fixed=TRUE)]
@@ -143,9 +146,6 @@ read_rnaseq <- function(folder, features="genes", normalization="raw",
 
     if (any(sdrf$name != sort(ids))) stop("Some samples not annotated!")
 
-    if (any(rnaseq_bm$entrez != feat$entrez)) 
-        stop("Something is wrong with the features!")
-    
     counts <- matrix(0, nrow=nrow(feat), ncol=length(files))  # pre-allocate
     for(i in 1:length(files)) {
         if (progress) {
@@ -155,14 +155,14 @@ read_rnaseq <- function(folder, features="genes", normalization="raw",
         counts[, i] <- mult * fread(files[i], select=data_idx)[[1]]
     }
     if (progress) cat("\n")
-    dimnames(counts) <- list(feat$entrez, sdrf$barcode)
-    
-    return(list(counts=counts, features=rnaseq_bm, samples=sdrf))
+    dimnames(counts) <- list(feat[[1]], sdrf$barcode)
+
+    return(list(counts=counts, features=feat, samples=sdrf))
 }
 
 #' Gene annotations for the TCGA RNASeqV2 data.
 #'
-#' This data set contains additional annotations for the RNASeq features
+#' This data set contains additional annotations for the RNASeq genes
 #' obtained from BioMart.
 #'
 #' @format A data frame with 20531 rows and 4 variables:
