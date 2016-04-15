@@ -71,6 +71,7 @@ read_rnaseq <- function(folder, features="genes", normalization="raw",
     mult <- 1
     if (features == "genes") {
         ann_idx <- c(1,4)
+        nam <- "entrez"
         if (normalization == "raw") {
             files <- grep(".genes.results", files, value=TRUE)
             data_idx <- 2
@@ -86,6 +87,7 @@ read_rnaseq <- function(folder, features="genes", normalization="raw",
         else stop("Not a valid features/normalization combination.")
     } else if (features == "isoforms") {
         ann_idx <- 1
+        nam <- "isoform_id"
         if (normalization == "raw") {
             files <- grep(".isoforms.results", files, value=TRUE)
             data_idx <- 2
@@ -101,6 +103,7 @@ read_rnaseq <- function(folder, features="genes", normalization="raw",
         else stop("Not a valid features/normalization combination.")
     } else if (features == "junctions") {
         ann_idx <- 1
+        nam <- "junction"
         files <- grep(".junction_quantification.txt", files, value=TRUE)
         if (normalization == "raw") data_idx <- 2
         else if (normalization == "XPM") data_idx <- 4
@@ -155,7 +158,7 @@ read_rnaseq <- function(folder, features="genes", normalization="raw",
         counts[, i] <- mult * fread(files[i], select=data_idx)[[1]]
     }
     if (progress) cat("\n")
-    dimnames(counts) <- list(feat[[1]], sdrf$barcode)
+    dimnames(counts) <- list(feat[[nam]], sdrf$barcode)
 
     return(list(counts=counts, features=feat, samples=sdrf))
 }
