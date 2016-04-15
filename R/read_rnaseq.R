@@ -110,6 +110,7 @@ read_rnaseq <- function(folder, features="genes", normalization="raw",
         else stop("Not a valid features/normalization combination.")
     } else if (features == "exons") {
         ann_idx <- c(1,3)
+        nam <- "exon"
         files <- grep(".exon_quantification.txt", files, value=TRUE)
         if (normalization == "raw") data_idx <- 2
         else if (normalization == "XPM") data_idx <- 4

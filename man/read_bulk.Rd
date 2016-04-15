@@ -4,19 +4,16 @@
 \alias{read_bulk}
 \title{Reads several data types from several TCGA download directories.}
 \usage{
-read_bulk(folders, what = c("HuEx", "RNASeqV2", "clinical"), args = list(),
-  stats = TRUE)
+read_bulk(folders, what = c("HuEx", "RNASeqV2", "clinical"), args = list())
 }
 \arguments{
 \item{folders}{A character vector of folders containing downloaded TCGA data.}
 
-\item{what}{What technologies to read. Must be a character vector consisting 
+\item{what}{What technologies to read. Must be a character vector consisting
 of any of the following: "HuEx", "RNASeqV2", "clinical".}
 
 \item{args}{A named list containing additional arguments to the function. Only
 the \code{folder} argument will be filled in by the bulk reader.}
-
-\item{stats}{Logical. Whether to print some basic stats about the bulk read.}
 }
 \value{
 A list of length(what) containing the combined data or NULL if no data
@@ -24,7 +21,7 @@ A list of length(what) containing the combined data or NULL if no data
 }
 \description{
 \code{read_bulk} allows you to combine several data types across several
-directories containing TCGA data. Data from several directories will be 
+directories containing TCGA data. Data from several directories will be
 combined correctly automatically.
 }
 \examples{
