@@ -39,6 +39,7 @@ efun <- function(er) NULL
 #' rna <- read_bulk(gbm)
 #'
 #' @importFrom data.table rbindlist
+#' @importFrom utils object.size
 read_bulk <- function(folders, what=c("HuEx", "RNASeqV2", "clinical"),
     args=list()) {
     out <- list()

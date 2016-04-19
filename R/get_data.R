@@ -98,7 +98,7 @@ download_huex <- function(base, out, method="auto", quiet=TRUE) {
 #' d <- tempdir()
 #' get_data("GBM", out=d)
 #'
-#' @importFrom utils download.file
+#' @importFrom utils download.file untar
 get_data <- function(panel, tech="clinical", out=toupper(panel), extract=TRUE,
     method="auto", quiet=FALSE) {
     suppressWarnings(dir.create(out, recursive=TRUE))
