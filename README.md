@@ -6,6 +6,12 @@
 # tcgar
 R package to read TCGA data and connect it to analysis pipelines (e.g. bioconductor).
 
+## Important!
+
+TCGA has recently migrated all of its data to the [Genomic Data Commons Portal](https://gdc-portal.nci.nih.gov/).
+Due to this `tcgar` is currently ***not functional anymore***. I am currently in the process of implementing
+the new API so it will work again.
+
 Currently implements download and parsing for:
 
 - Clinical data for samples and patients
