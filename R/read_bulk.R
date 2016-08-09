@@ -68,6 +68,8 @@ read_bulk <- function(folders, what=c("HuEx", "RNASeqV2", "clinical"),
     write(paste("Size of data set in RAM =", format(size, units="auto")),
         file="")
 
+    gc(verbose=FALSE)
+
     if (sum(samples_per) == 0) return(NULL)
     return(out)
 }
