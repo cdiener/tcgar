@@ -2,23 +2,24 @@
 % Please edit documentation in R/read_huex.R
 \name{read_huex}
 \alias{read_huex}
-\title{Reads HuEx 1.0 st v2 exon expression data from the TCGA project.}
+\title{Reads HuEx 1.0 st v2 exon expression data.}
 \usage{
-read_huex(folder, features = "genes")
+read_huex(manifest, folder, features = "genes")
 }
 \arguments{
+\item{manifest}{Path to the GDC file manifest.}
+
 \item{folder}{Location of the directory containing downloaded TCGA data.}
 
 \item{features}{Which features to use. Can be either "genes" or "exons".}
 }
 \value{
-A list with two elements, a matrix of log-expression values and a
- data table giving additional information for samples.
+A list with three elements, a matrix of log-expression values, a
+ data table giving additional information for samples and a data table
+ describing the features (genes or exon IDs).
 }
 \description{
-This reads level 3 data for exon expression data for the TCGA project.
-The function is currently limited to level 3 data since lower level data
-are not publically available.
+This reads level 3 data for exon expression data.
 }
 \examples{
 gbm <- system.file("extdata", "GBM", package = "tcgar")
@@ -28,6 +29,7 @@ huex <- read_huex(gbm)
 \seealso{
 \code{\link{read_rnaseq}} to read RNASeq data.
 }
+\keyword{GDC}
 \keyword{HuEx}
 \keyword{TCGA}
 \keyword{microarray}

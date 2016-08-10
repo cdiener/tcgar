@@ -4,28 +4,19 @@
 \alias{read_clinical}
 \title{Reads clinical data from TCGA for multiple samples.}
 \usage{
-read_clinical(folder, add_sample_cols = NULL, add_patient_cols = NULL)
+read_clinical(manifest, folder, progress = FALSE)
 }
 \arguments{
+\item{manifest}{Path to the GDC file manifest.}
+
 \item{folder}{The folder that contains the data.}
-
-\item{add_sample_cols}{Names of additional columns read from normal and tumor
-sample data or NULL for no additional columns. If the vector is named the 
-names are expected to be the column names in the TCGA Biotab files and the
-vector elements will be the column names in the returned data table.}
-
-\item{add_patient_cols}{Names of additional columns read from patient data 
-or NULL for no additional columns. If the vector is named the 
-names are expected to be the column names in the TCGA Biotab files and the
-vector elements will be the column names in the returned data table.}
 }
 \value{
-A list with two data tables, samples and patient, containing the 
- information for patients and samples.
+A data table containing the information for patients on its rows.
 }
 \description{
-This function assembles a data set with the major clinical indicators for each 
-patient as well as sample procurement data for all the samples available for 
+This function assembles a data set with the major clinical indicators for each
+patient as well as sample procurement data for all the samples available for
 each patient from TCGA Biotab data.
 }
 \examples{
@@ -33,6 +24,7 @@ gbm <- system.file("extdata", "GBM", package = "tcgar")
 clin <- read_clinical(gbm)
 
 }
+\keyword{GDC}
 \keyword{TCGA}
 \keyword{clinical}
 \keyword{read}

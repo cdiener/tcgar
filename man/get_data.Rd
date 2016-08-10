@@ -2,42 +2,26 @@
 % Please edit documentation in R/get_data.R
 \name{get_data}
 \alias{get_data}
-\title{Downloads data for a given cancer panel and technology.}
+\title{Downloads data from the Genomic Data Commons Portal.}
 \usage{
-get_data(panel, tech = "clinical", out = toupper(panel), extract = TRUE,
-  method = "auto", quiet = FALSE)
+get_data(manifest, out = "gdc_data", quiet = FALSE, np = 4)
 }
 \arguments{
-\item{panel}{Name of the cancer panel. See \code{\link{get_panels}} to get
-a list of availabe cancer panels.}
+\item{manifest}{Path to the GDC file manifest.}
 
-\item{tech}{The technology for which data should be downloaded. Currently only
-supports 'HuEx', 'RNASeqV2' and 'clinical'. Can be a single technology or
-a character vector of technologies.}
+\item{out}{Optional. The folder to which to download the data. Default
+is to extract into a folder named "gdc_data".}
 
-\item{out}{Optional. The folder to which to extract the data. Default
-is to extract into a folder named after the cancer panel within the current
-working directory.}
+\item{quiet}{Specifies whether download status info should be supressed (default no).}
 
-\item{extract}{Boolean. Whether to extract the data after download.}
-
-\item{method}{Passed to \code{\link{download.file}}. Specifies the download
-method. Defaults to 'auto'.}
-
-\item{quiet}{Passed to \code{\link{download.file}}. Specifies whether download
-status info should be supressed. Defaults to false.}
+\item{np}{How many parallel download processes should be started.}
 }
 \value{
 Nothing.
 }
 \description{
-This will download all data for a given cancer panel and technology as
-a given cancer type and extract it.
-}
-\details{
-\emph{Note that you should not extract several downloads of the same technology
-to the same folder as this will be incompatible with the \code{read_*}
-functions.}
+This will download all data specified in a given manifest file. To generate
+a valid manifest use the portal at \url{https://gdc-portal.nci.nih.gov/}.
 }
 \examples{
 d <- tempdir()
@@ -48,6 +32,7 @@ get_data("GBM", out=d)
 \code{\link{read_bulk}} to read data from several folders and
  technologies.
 }
-\keyword{TCGA}
+\keyword{GDC}
+\keyword{TCGA,}
 \keyword{download,}
 
