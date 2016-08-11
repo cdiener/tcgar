@@ -4,7 +4,7 @@
 \alias{read_huex}
 \title{Reads HuEx 1.0 st v2 exon expression data.}
 \usage{
-read_huex(manifest, folder, features = "genes")
+read_huex(manifest, folder, features = "genes", progress = TRUE)
 }
 \arguments{
 \item{manifest}{Path to the GDC file manifest.}
@@ -12,6 +12,8 @@ read_huex(manifest, folder, features = "genes")
 \item{folder}{Location of the directory containing downloaded TCGA data.}
 
 \item{features}{Which features to use. Can be either "genes" or "exons".}
+
+\item{progress}{Whether to show progress information.}
 }
 \value{
 A list with three elements, a matrix of log-expression values, a
@@ -22,8 +24,9 @@ A list with three elements, a matrix of log-expression values, a
 This reads level 3 data for exon expression data.
 }
 \examples{
-gbm <- system.file("extdata", "GBM", package = "tcgar")
-huex <- read_huex(gbm)
+gbm <- system.file("extdata", "manifest.tsv", package = "tcgar")
+d <- tempdir()
+huex <- read_huex(gbm, d)
 
 }
 \seealso{

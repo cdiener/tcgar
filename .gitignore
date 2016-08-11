@@ -3,4 +3,4 @@
 .RData
 
 # Wercker steps
-_*
+.wercker

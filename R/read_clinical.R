@@ -11,6 +11,7 @@ COLS <- c("patient_uuid" = "//shared:bcr_patient_uuid",
     "days_to_contact" = "//clin_shared:days_to_last_followup",
     "days_to_death" = "//clin_shared:days_to_death",
     "days_to_birth" = "//clin_shared:days_to_birth",
+    "panel" = "//admin:disease_code",
     "histology" = "//shared:histological_type",
     "tissue_site" = "//clin_shared:tumor_tissue_site",
     "stage" = "//shared_stage:pathologic_stage",
@@ -33,47 +34,38 @@ XML_RE <- "\\.xml"
 #' @keywords clinical TCGA read GDC
 #' @param manifest Path to the GDC file manifest.
 #' @param folder The folder that contains the data.
+#' @param progress Whether to show progress information.
 #' @return A data table containing the information for patients on its rows.
 #' @examples
-#' gbm <- system.file("extdata", "GBM", package = "tcgar")
-#' clin <- read_clinical(gbm)
+#' gbm <- system.file("extdata", "manifest.tsv", package = "tcgar")
+#' d <- tempdir()
+#' clin <- read_clinical(gbm, d)
 #'
 #' @importFrom magrittr '%>%'
-#' @importFrom xml2 read_xml xml_find_all xml_text
+#' @importFrom xml2 read_xml xml_find_all xml_text xml_ns
 #' @importFrom data.table rbindlist
-#' @importFrom utils txtProgressBar setTxtProgressBar
-read_clinical <- function(manifest, folder, progress=FALSE) {
+#' @importFrom pbapply pbapply pblapply
+read_clinical <- function(manifest, folder, progress=TRUE) {
     man <- fread(manifest)
     files <- man[grep(XML_RE, filename)]
+    afun <- ifelse(progress, pbapply, apply)
 
-    if (progress) {
-        pb <- txtProgressBar(min=0, max=nrow(files), style=3)
-        i <- 0
-        env <- environment()
-    }
-
-    patients <- apply(files, 1, function(fi) {
+    patients <- afun(files, 1, function(fi) {
         xml_doc <- read_xml(file.path(folder, fi["id"], fi["filename"]))
         ns <- fix_ns(xml_ns(xml_doc))
-        vals <- lapply(COLS, function(co)
+        vals <- sapply(COLS, function(co)
             xml_doc %>% xml_find_all(co, ns=ns) %>% xml_text() %>% last_or_na()
         )
         names(vals) <- names(COLS)
-        counts <- lapply(COUNTS, function(co)
+        counts <- sapply(COUNTS, function(co)
             xml_doc %>% xml_find_all(co, ns=ns) %>% xml_text() %>% length()
         )
         names(counts) <- names(COUNTS)
-        if(progress) {
-            env$i <- env$i + 1
-            setTxtProgressBar(env$pb, env$i)
-        }
-
         data.table(t(vals), t(counts))
     })
-    if (progress) close(pb)
 
     patients <- rbindlist(patients)
-    for (co in TO_NUM) set(patients, j=co, as.numeric(patients[[co]]))
+    for (co in TO_NUM) set(patients, j=co, value=as.numeric(patients[[co]]))
 
     return(patients)
 }

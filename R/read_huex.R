@@ -9,7 +9,7 @@ HUEX_EXON_RE <- "HuEx-1_0-st-v2\\.\\d+\\.FIRMA\\.txt"
 HUEX_SDRF_RE <- "\\.HuEx-1_0-st-v2\\.sdrf\\.txt"
 PANEL_RE <- "lbl\\.gov_(\\w+)\\."
 HUEX_SDRF_COLS <- c(13, 14, 17, 19, 24)
-HUEX_SDRF_NAMES <- c("uuid", "barcode", "label", "id", "panel")
+HUEX_SDRF_NAMES <- c("name", "barcode", "label", "id", "panel")
 
 # To fix stupid CRAN notes
 utils::globalVariables(c("barcode", "id", "filename"))
@@ -24,15 +24,17 @@ utils::globalVariables(c("barcode", "id", "filename"))
 #' @param manifest Path to the GDC file manifest.
 #' @param folder Location of the directory containing downloaded TCGA data.
 #' @param features Which features to use. Can be either "genes" or "exons".
+#' @param progress Whether to show progress information.
 #' @return A list with three elements, a matrix of log-expression values, a
 #'  data table giving additional information for samples and a data table
 #'  describing the features (genes or exon IDs).
 #' @examples
-#' gbm <- system.file("extdata", "GBM", package = "tcgar")
-#' huex <- read_huex(gbm)
+#' gbm <- system.file("extdata", "manifest.tsv", package = "tcgar")
+#' d <- tempdir()
+#' huex <- read_huex(gbm, d)
 #'
 #' @importFrom data.table data.table fread set ':='
-read_huex <- function(manifest, folder, features="genes") {
+read_huex <- function(manifest, folder, features="genes", progress=TRUE) {
     man <- fread(manifest)
     if (features == "genes") {
         files <- man[grep(HUEX_GENE_RE, filename)]
@@ -41,7 +43,10 @@ read_huex <- function(manifest, folder, features="genes") {
         files <- man[grep(HUEX_EXON_RE, filename)]
     if (nrow(files) == 0) stop("No HuEx exon transcription data found!")
 
-    sdrfs <- apply(files, 1, function(fi) {
+    afun <- ifelse(progress, pbapply, apply)
+
+    if(progress) cat("Getting annotations: \n")
+    sdrfs <- afun(files, 1, function(fi) {
         path <- file.path(folder, fi["id"])
         mage <- find_dir(path, "mage-tab")
         if (length(mage) == 0) {
@@ -61,8 +66,11 @@ read_huex <- function(manifest, folder, features="genes") {
     sdrf$panel <- toupper(str_match(sdrf$panel, PANEL_RE)[,2])
     sdrf[, "barcode" := sapply(barcode, substr, 0, 16)]
 
-    arrays <- apply(files, 1, function(fi) {
-        path <- file.path(folder, fi["id"], fi["filename"])
+    afun <- ifelse(progress, pblapply, lapply)
+    if(progress) cat("Reading arrays: \n")
+    arrays <- afun(1:nrow(files), function(i) {
+        fi <- files[i]
+        path <- file.path(folder, fi[, id], fi[, filename])
         cols <- colnames(fread(path, nrows=0, header=T))
         arr <- fread(path, skip=2)
         rows <- arr[[1]]

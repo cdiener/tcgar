@@ -1,6 +1,13 @@
 box: rocker/hadleyverse
 build:
   steps:
+    - script:
+        name: Get GDC Data Transfer Tool
+        code: |
+            wget https://github.com/NCI-GDC/gdc-client/releases/download/v1.0.1/gdc-client_v1.0.1_Ubuntu14.04_x64.zip
+            unzip gdc-client_v1.0.1_Ubuntu14.04_x64.zip
+            cp gdc-client /usr/bin
+            rm -rf gdc-client*
     - jimhester/r-dependencies
     - inbobmk/r-check
     - inbobmk/r-coverage

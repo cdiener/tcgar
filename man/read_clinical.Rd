@@ -4,12 +4,14 @@
 \alias{read_clinical}
 \title{Reads clinical data from TCGA for multiple samples.}
 \usage{
-read_clinical(manifest, folder, progress = FALSE)
+read_clinical(manifest, folder, progress = TRUE)
 }
 \arguments{
 \item{manifest}{Path to the GDC file manifest.}
 
 \item{folder}{The folder that contains the data.}
+
+\item{progress}{Whether to show progress information.}
 }
 \value{
 A data table containing the information for patients on its rows.
@@ -20,8 +22,9 @@ patient as well as sample procurement data for all the samples available for
 each patient from TCGA Biotab data.
 }
 \examples{
-gbm <- system.file("extdata", "GBM", package = "tcgar")
-clin <- read_clinical(gbm)
+gbm <- system.file("extdata", "manifest.tsv", package = "tcgar")
+d <- tempdir()
+clin <- read_clinical(gbm, d)
 
 }
 \keyword{GDC}

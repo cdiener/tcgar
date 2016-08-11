@@ -6,11 +6,11 @@
 # tcgar
 R package to read TCGA data and connect it to analysis pipelines (e.g. bioconductor).
 
-## Important!
+## News
 
 TCGA has recently migrated all of its data to the [Genomic Data Commons Portal](https://gdc-portal.nci.nih.gov/).
-I am currently in the process of implementing the new API so it will work again. This here is the new
-GDC branch that can use GDC data.
+This new version of `tcgar` now uses GDC for all data downloads. It supports the legacy
+and new archive, however, the preloaded gene ID maps are based on the legacy archive.
 
 ## Usage
 

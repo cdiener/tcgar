@@ -10,8 +10,6 @@
 #' This will download all data specified in a given manifest file. To generate
 #' a valid manifest use the portal at \url{https://gdc-portal.nci.nih.gov/}.
 #'
-#' @seealso \code{\link{read_bulk}} to read data from several folders and
-#'  technologies.
 #' @export
 #' @keywords download, TCGA, GDC
 #' @param manifest Path to the GDC file manifest.
@@ -21,8 +19,9 @@
 #' @param np How many parallel download processes should be started.
 #' @return Nothing.
 #' @examples
+#' gbm <- system.file("extdata", "manifest.tsv", package = "tcgar")
 #' d <- tempdir()
-#' get_data("GBM", out=d)
+#' get_data(gbm, out=d)
 #'
 #' @importFrom utils untar
 get_data <- function(manifest, out="gdc_data", quiet=FALSE, np=4) {
@@ -30,7 +29,7 @@ get_data <- function(manifest, out="gdc_data", quiet=FALSE, np=4) {
 
     man <- fread(manifest)
     bytes <- structure(man[, sum(as.numeric(size))], class="object_size")
-    cat(sprintf("Downloading %s...\n", format(bytes, "auto")))
+    if (!quiet) cat(sprintf("Downloading %s...\n", format(bytes, "auto")))
     sout <- ifelse(quiet, FALSE, "")
     command <- ifelse(Sys.info()["sysname"] == "Windows",
         "gdc-client.exe", "gdc-client")

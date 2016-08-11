@@ -6,28 +6,11 @@
 
 RNA_SDRF_COLS <- c(1, 2, 15, 26)
 RNA_SDRF_NAMES <- c("name", "barcode", "genome", "panel")
+RNA_PANEL_RE <- "unc\\.edu_(\\w+)\\."
+RNA_ID_RE <- "unc\\.edu\\.([a-z0-9-]+)\\."
 
 # To fix stupid CRAN notes
-utils::globalVariables(c("gene_id", "name"))
-
-hiseq_or_last <- function(files) {
-    hiseq <- grep("HiSeq", files, value=T)
-    if (length(hiseq) > 0) return(hiseq[1]) else return(files[length(files)])
-}
-
-remove_dupes <- function(files, pref=hiseq_or_last) {
-    ids <- str_match(files, "unc\\.edu\\.([0-9a-z-]+)\\.")[,2]
-    dupes <- unique(ids[duplicated(ids)])
-    dupe_files <- files[ids %in% dupes]
-    clean_files <- tapply(dupe_files, ids[ids %in% dupes], pref)
-    files <- files[!(ids %in% dupes)]
-    ids <- ids[!(ids %in% dupes)]
-    files <- c(files, clean_files)
-    ids <- c(ids, dupes)
-    files <- files[order(ids)]
-
-    return(list(files=files, ids=ids))
-}
+utils::globalVariables(c("gene_id", "name", "sample_uuid"))
 
 #' Reads RNA sequencing data from TCGA for several samples.
 #'
@@ -57,18 +40,21 @@ remove_dupes <- function(files, pref=hiseq_or_last) {
 #' @return A data table containing the features as rows and the samples in the
 #'  columns.
 #' @examples
-#' gbm <- system.file("extdata", "GBM", package = "tcgar")
-#' rna <- read_rnaseq(gbm)
+#' gbm <- system.file("extdata", "manifest.tsv", package = "tcgar")
+#' d <- tempdir()
+#' rna <- read_rnaseq(gbm, d)
 #'
 #' @importFrom stringr str_match
-#' @importFrom data.table fread set tstrsplit ':=' rbindlist
+#' @importFrom data.table fread set tstrsplit ':=' rbindlist setkey
+#' @importFrom pbapply startpb setpb closepb
 read_rnaseq <- function(manifest, folder, features="genes", normalization="raw",
-    progress=FALSE) {
+    progress=TRUE) {
     man <- fread(manifest)
+    afun <- ifelse(progress, pbapply, apply)
 
     mult <- 1
     if (features == "genes") {
-        ann_idx <- c(1,4)
+        ann_idx <- 1
         nam <- "entrez"
         if (normalization == "raw") {
             files <- man[grep(".genes.results", filename)]
@@ -80,7 +66,7 @@ read_rnaseq <- function(manifest, folder, features="genes", normalization="raw",
         }
         else if (normalization == "Q75") {
             files <- man[grep(".genes.normalized_results", filename)]
-           data_idx <- 2
+            data_idx <- 2
         }
         else stop("Not a valid features/normalization combination.")
     } else if (features == "isoforms") {
@@ -116,7 +102,10 @@ read_rnaseq <- function(manifest, folder, features="genes", normalization="raw",
     }
     else stop("Not a valid feature type.")
 
-    sdrf <- apply(files, 1, function(fi) {
+    files[, sample_uuid := str_match(filename, RNA_ID_RE)[,2]]
+
+    if(progress) cat("Reading annotations:\n")
+    sdrf <- afun(files, 1, function(fi) {
         path <- file.path(folder, fi["id"])
         mage <- find_dir(path, "mage-tab")
         if (length(mage) == 0) {
@@ -129,19 +118,20 @@ read_rnaseq <- function(manifest, folder, features="genes", normalization="raw",
         fread(sdrf_path, na.strings="->", select=RNA_SDRF_COLS,
             colClasses="character")
     })
+    sdrf <- rbindlist(sdrf)
     names(sdrf) <- RNA_SDRF_NAMES
-    sdrf <- unique(rbindlist(sdrfs), by="name")
+    sdrf <- unique(sdrf, by="name")
     is_tumor <- as.numeric(sapply(sdrf$barcode, substr, 14, 15)) < 10
     sdrf$tumor <- is_tumor
-    sdrf$panel <- toupper(str_match(sdrf$panel, PANEL_RE)[,2])
+    sdrf$panel <- toupper(str_match(sdrf$panel, RNA_PANEL_RE)[,2])
     sdrf[, "barcode" := sapply(barcode, substr, 0, 16)]
 
     # Some of the public downloads are missing files, also order the names
     setkey(sdrf, "name")
-    sdrf <- sdrf[files$id]
+    sdrf <- sdrf[files$sample_uuid]
     setkey(sdrf, NULL)
 
-    if (any(sdrf$name != files$id))
+    if (any(sdrf$name != files$sample_uuid))
         stop("Missing sample annotations for some IDs.")
 
     feat <- fread(files[1, file.path(folder, id, filename)], select=ann_idx)
@@ -150,16 +140,19 @@ read_rnaseq <- function(manifest, folder, features="genes", normalization="raw",
         feat[, "gene_id" := NULL]
     }
 
-    if (progress) pb <- txtProgressBar(min=0, max=nrow(files), style=3)
-
-    counts <- matrix(0, nrow=nrow(feat), ncol=length(files))  # pre-allocate
+    if(progress) {
+        cat("Reading assays:\n")
+        pb <- startpb(min=0, max=nrow(files))
+        on.exit(closepb(pb))
+    }
+    counts <- matrix(0, nrow=nrow(feat), ncol=nrow(files))  # pre-allocate
     for(i in 1:nrow(files)) {
         path <- files[i, file.path(folder, id, filename)]
-        if (progress) setTxtProgressBar(pb, i)
+        if (progress) setpb(pb, i)
         counts[, i] <- mult * fread(path, select=data_idx)[[1]]
     }
-    if (progress) close(pb)
-    dimnames(counts) <- list(feat[[nam]], files$id)
+    if (normalization == "raw") counts <- round(counts)
+    dimnames(counts) <- list(feat[[nam]], files$sample_uuid)
 
     return(list(counts=counts, features=feat, samples=sdrf))
 }

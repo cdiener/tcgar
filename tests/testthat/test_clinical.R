@@ -1,19 +1,17 @@
 #  test_clinical.R
-#  
+#
 #  Copyright 2016 Christian Diener <mail[at]cdiener.com>
-#  
+#
 #  MIT license. See LICENSE for more information.
 
 context("Clinical")
 
-gbm <- system.file("extdata", "GBM", package="tcgar")
-other <- system.file("extdata", "", package="tcgar")
+manifest <- system.file("extdata", "manifest.tsv", package="tcgar")
+d <- tempdir()
 
 test_that("Clinical data can be loaded", {
-    clin <- read_clinical(gbm)
-    expect_error(read_clinical(other))
-    expect_equal(names(clin), c("patients", "samples"))
-    expect_true("patient_barcode" %in% names(clin$patients))
-    expect_true(all(clin$samples$cancer_panel == "GBM"))
-    expect_true(is.logical(clin$samples$tumor))
+    clin <- read_clinical(manifest, d, progress=FALSE)
+    expect_equal(ncol(clin), 17)
+    expect_equal(nrow(clin), 1)
+    expect_type(clin$follow_ups, "integer")
 })

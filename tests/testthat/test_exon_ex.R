@@ -6,24 +6,14 @@
 
 context("HuEx 1.0 ST v2")
 
-gbm <- system.file("extdata", "GBM", package="tcgar")
-other <- system.file("extdata", "", package="tcgar")
-
-test_that("Exon expression data can be loaded", {
-    huex <- read_huex(gbm, features="exons")
-    expect_equal(names(huex), c("assay", "samples", "features"))
-    expect_equal(class(huex$assay), "matrix")
-    expect_equal(dim(huex$assay)[2], 29)
-    expect_equal(names(huex$samples), c("name", "barcode", "label", "id", "panel", "tumor"))
-    expect_equal(names(huex$features), "ID")
-})
+manifest <- system.file("extdata", "manifest.tsv", package="tcgar")
+d <- tempdir()
 
 test_that("Summarized exon expression data can be loaded", {
-    huex <- read_huex(gbm)
-    expect_error(read_huex(other))
+    huex <- read_huex(manifest, d, progress=FALSE)
     expect_equal(names(huex), c("assay", "samples", "features"))
     expect_equal(class(huex$assay), "matrix")
-    expect_equal(dim(huex$assay)[2], 29)
+    expect_equal(ncol(huex$assay), 50)
     expect_equal(names(huex$samples), c("name", "barcode", "label", "id", "panel", "tumor"))
     expect_equal(names(huex$features), "symbol")
 })

@@ -5,7 +5,7 @@
 \title{Reads RNA sequencing data from TCGA for several samples.}
 \usage{
 read_rnaseq(manifest, folder, features = "genes", normalization = "raw",
-  progress = FALSE)
+  progress = TRUE)
 }
 \arguments{
 \item{manifest}{Path to the GDC file manifest.}
@@ -39,8 +39,9 @@ annotated correctly. Also note that duplicate data (files with the same
 extract name) will be treated as independent duplicates for the same sample.
 }
 \examples{
-gbm <- system.file("extdata", "GBM", package = "tcgar")
-rna <- read_rnaseq(gbm)
+gbm <- system.file("extdata", "manifest.tsv", package = "tcgar")
+d <- tempdir()
+rna <- read_rnaseq(gbm, d)
 
 }
 \seealso{
