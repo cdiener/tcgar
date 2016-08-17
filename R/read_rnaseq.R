@@ -57,15 +57,15 @@ read_rnaseq <- function(manifest, folder, features="genes", normalization="raw",
         ann_idx <- 1
         nam <- "entrez"
         if (normalization == "raw") {
-            files <- man[grep(".genes.results", filename)]
+            files <- man[grep("\\.genes\\.results", filename)]
             data_idx <- 2
         } else  if (normalization == "XPM") {
-            files <- man[grep(".genes.results", filename)]
+            files <- man[grep("\\.genes\\.results", filename)]
             data_idx <- 3
             mult <- 1e6
         }
         else if (normalization == "Q75") {
-            files <- man[grep(".genes.normalized_results", filename)]
+            files <- man[grep("\\.genes\\.normalized_results", filename)]
             data_idx <- 2
         }
         else stop("Not a valid features/normalization combination.")
@@ -73,29 +73,29 @@ read_rnaseq <- function(manifest, folder, features="genes", normalization="raw",
         ann_idx <- 1
         nam <- "isoform_id"
         if (normalization == "raw") {
-            files <- man[grep(".isoforms.results", filename)]
+            files <- man[grep("\\.isoforms\\.results", filename)]
             data_idx <- 2
         } else  if (normalization == "XPM") {
-            files <- man[grep(".isoforms.results", filename)]
+            files <- man[grep("\\.isoforms\\.results", filename)]
             data_idx <- 3
             mult <- 1e6
         }
         else if (normalization == "Q75") {
-            files <- man[grep(".isoforms.normalized_results", filename)]
+            files <- man[grep("\\.isoforms\\.normalized_results", filename)]
             data_idx <- 2
         }
         else stop("Not a valid features/normalization combination.")
     } else if (features == "junctions") {
         ann_idx <- 1
         nam <- "junction"
-        files <- man[grep(".junction_quantification.txt", filename)]
+        files <- man[grep("\\.junction_quantification\\.txt", filename)]
         if (normalization == "raw") data_idx <- 2
         else if (normalization == "XPM") data_idx <- 4
         else stop("Not a valid features/normalization combination.")
     } else if (features == "exons") {
         ann_idx <- c(1,3)
         nam <- "exon"
-        files <- man[grep(".exon_quantification.txt", filename)]
+        files <- man[grep("\\.exon_quantification\\.txt", filename)]
         if (normalization == "raw") data_idx <- 2
         else if (normalization == "XPM") data_idx <- 4
         else stop("Not a valid features/normalization combination.")
@@ -109,8 +109,14 @@ read_rnaseq <- function(manifest, folder, features="genes", normalization="raw",
         path <- file.path(folder, fi["id"])
         mage <- find_dir(path, "mage-tab")
         if (length(mage) == 0) {
-            untar(list.files(path=path, pattern="\\.tar\\.gz", full.names=TRUE),
-                exdir=path.expand(path))
+            mage <- list.files(path=path, pattern="mage-tab.+\\.tar\\.gz",
+                full.names=TRUE)
+            if (length(mage) != 1) {
+                warning(sprintf("ID %s has no or several mage tab annotations!",
+                    fi["id"]))
+                return(NULL)
+            }
+            untar(mage[1], exdir=path.expand(path))
             mage <- find_dir(path, "mage-tab")
         }
         path <- mage
@@ -128,6 +134,7 @@ read_rnaseq <- function(manifest, folder, features="genes", normalization="raw",
 
     # Some of the public downloads are missing files, also order the names
     setkey(sdrf, "name")
+    files <- files[sample_uuid %in% sdrf$name]
     sdrf <- sdrf[files$sample_uuid]
     setkey(sdrf, NULL)
 

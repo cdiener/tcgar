@@ -6,9 +6,9 @@
 
 ADD_NS <- c("shared_stage", "nte")
 
-highest_version <- function(vers) {
-    return(order(numeric_version(vers), decreasing=T)[1])
-}
+# highest_version <- function(vers) {
+#     return(order(numeric_version(vers), decreasing=T)[1])
+# }
 
 find_dir <- function(path, re) {
     dirs <- list.dirs(path)
