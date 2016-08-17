@@ -4,6 +4,11 @@
 
 context("file info")
 
+GDC_BASE <- "https://gdc-api.nci.nih.gov/files?"
+fields <- c("file_id", "file_name", "md5sum",
+    "cases.case_id", "cases.submitter_id", "data_category", "data_type",
+    "experimental_strategy", "updated_datetime")
+
 query <- sprintf("%sfields=%s&pretty=true&size=32",
     GDC_BASE, paste(fields, collapse=","))
 
