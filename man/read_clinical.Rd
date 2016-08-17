@@ -22,9 +22,10 @@ patient as well as sample procurement data for all the samples available for
 each patient from TCGA Biotab data.
 }
 \examples{
-gbm <- system.file("extdata", "manifest.tsv", package = "tcgar")
-d <- tempdir()
-clin <- read_clinical(gbm, d)
+# Not run due to large download...
+# gbm <- system.file("extdata", "manifest.tsv", package = "tcgar")
+# d <- tempdir()
+# clin <- read_clinical(gbm, d)
 
 }
 \keyword{GDC}

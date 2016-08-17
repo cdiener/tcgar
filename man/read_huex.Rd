@@ -24,9 +24,10 @@ A list with three elements, a matrix of log-expression values, a
 This reads level 3 data for exon expression data.
 }
 \examples{
-gbm <- system.file("extdata", "manifest.tsv", package = "tcgar")
-d <- tempdir()
-huex <- read_huex(gbm, d)
+# Not run due to large download...
+# gbm <- system.file("extdata", "manifest.tsv", package = "tcgar")
+# d <- tempdir()
+# huex <- read_huex(gbm, d)
 
 }
 \seealso{

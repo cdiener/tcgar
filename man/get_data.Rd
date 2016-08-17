@@ -24,9 +24,10 @@ This will download all data specified in a given manifest file. To generate
 a valid manifest use the portal at \url{https://gdc-portal.nci.nih.gov/}.
 }
 \examples{
-gbm <- system.file("extdata", "manifest.tsv", package = "tcgar")
-d <- tempdir()
-get_data(gbm, out=d)
+# Not run due to large download...
+# gbm <- system.file("extdata", "manifest.tsv", package = "tcgar")
+# d <- tempdir()
+# get_data(gbm, out=d)
 
 }
 \keyword{GDC}
