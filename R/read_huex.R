@@ -29,9 +29,10 @@ utils::globalVariables(c("barcode", "id", "filename"))
 #'  data table giving additional information for samples and a data table
 #'  describing the features (genes or exon IDs).
 #' @examples
-#' gbm <- system.file("extdata", "manifest.tsv", package = "tcgar")
-#' d <- tempdir()
-#' huex <- read_huex(gbm, d)
+#' # Not run due to large download...
+#' # gbm <- system.file("extdata", "manifest.tsv", package = "tcgar")
+#' # d <- tempdir()
+#' # huex <- read_huex(gbm, d)
 #'
 #' @importFrom data.table data.table fread set ':='
 read_huex <- function(manifest, folder, features="genes", progress=TRUE) {

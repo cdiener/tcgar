@@ -40,9 +40,10 @@ utils::globalVariables(c("gene_id", "name", "sample_uuid"))
 #' @return A data table containing the features as rows and the samples in the
 #'  columns.
 #' @examples
-#' gbm <- system.file("extdata", "manifest.tsv", package = "tcgar")
-#' d <- tempdir()
-#' rna <- read_rnaseq(gbm, d)
+#' # Not run due to large download...
+#' # gbm <- system.file("extdata", "manifest.tsv", package = "tcgar")
+#' # d <- tempdir()
+#' # rna <- read_rnaseq(gbm, d)
 #'
 #' @importFrom stringr str_match
 #' @importFrom data.table fread set tstrsplit ':=' rbindlist setkey

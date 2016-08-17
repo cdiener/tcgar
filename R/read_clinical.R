@@ -37,9 +37,10 @@ XML_RE <- "\\.xml"
 #' @param progress Whether to show progress information.
 #' @return A data table containing the information for patients on its rows.
 #' @examples
-#' gbm <- system.file("extdata", "manifest.tsv", package = "tcgar")
-#' d <- tempdir()
-#' clin <- read_clinical(gbm, d)
+#' # Not run due to large download...
+#' # gbm <- system.file("extdata", "manifest.tsv", package = "tcgar")
+#' # d <- tempdir()
+#' # clin <- read_clinical(gbm, d)
 #'
 #' @importFrom magrittr '%>%'
 #' @importFrom xml2 read_xml xml_find_all xml_text xml_ns

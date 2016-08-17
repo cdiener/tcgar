@@ -19,9 +19,10 @@
 #' @param np How many parallel download processes should be started.
 #' @return Nothing.
 #' @examples
-#' gbm <- system.file("extdata", "manifest.tsv", package = "tcgar")
-#' d <- tempdir()
-#' get_data(gbm, out=d)
+#' # Not run due to large download...
+#' # gbm <- system.file("extdata", "manifest.tsv", package = "tcgar")
+#' # d <- tempdir()
+#' # get_data(gbm, out=d)
 #'
 #' @importFrom utils untar
 get_data <- function(manifest, out="gdc_data", quiet=FALSE, np=4) {

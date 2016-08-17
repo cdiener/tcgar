@@ -14,9 +14,10 @@ utils::globalVariables("size")
 #' @return A list of length(what) containing the combined data or NULL if no data
 #'  was found.
 #' @examples
-#' gbm <- system.file("extdata", "manifest.tsv", package = "tcgar")
-#' d <- tempdir()
-#' panel_samples(huex=read_huex(gbm, d, progress=FALSE))
+#' # Not run due to large download...
+#' # gbm <- system.file("extdata", "manifest.tsv", package = "tcgar")
+#' # d <- tempdir()
+#' # panel_samples(huex=read_huex(gbm, d, progress=FALSE))
 #'
 #' @importFrom data.table rbindlist
 #' @importFrom utils object.size

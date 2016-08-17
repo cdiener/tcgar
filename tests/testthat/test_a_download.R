@@ -10,7 +10,7 @@ manifest <- system.file("extdata", "manifest.tsv", package="tcgar")
 d <- tempdir()
 
 test_that("Downloading data works", {
-    man <- fread(manifest)
+    man <- data.table::fread(manifest)
     get_data(manifest, d, quiet=TRUE)
     folders <- list.dirs(path=d, full.names=FALSE, recursive=FALSE)
     expect_true(all(man$id %in% folders))
