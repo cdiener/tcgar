@@ -33,14 +33,14 @@ list_files <- function(query="default", unique_patient=TRUE) {
             GDC_BASE, paste(fields, collapse=","))
 
     json <- fromJSON(query)
-    files <- as.data.table(json$data$hits)
+    fi <- as.data.table(json$data$hits)
     if (unique_patient) {
-        files <- files[sapply(cases, nrow) == 1]
-        files[, c("patient_uuid", "barcode") := rbindlist(cases)]
-        files[, cases := NULL]
+        fi <- fi[sapply(cases, nrow) == 1]
+        fi[, c("patient_uuid", "barcode") := rbindlist(cases)]
+        fi[, cases := NULL]
     }
 
-    return(files)
+    return(fi)
 }
 
 #' File infos for the GDC release v2 from 08-2016
