@@ -117,7 +117,8 @@ read_rnaseq <- function(manifest, folder, features="genes", normalization="raw",
                     fi["id"]))
                 return(NULL)
             }
-            untar(mage[1], exdir=path.expand(path))
+            err <- untar(mage[1], exdir=path.expand(path))
+            if (err != 0) stop(sprintf("Error unpacking file %s!", mage))
             mage <- find_dir(path, "mage-tab")
         }
         path <- mage
