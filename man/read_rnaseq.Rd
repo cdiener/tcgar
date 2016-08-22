@@ -2,28 +2,22 @@
 % Please edit documentation in R/read_rnaseq.R
 \name{read_rnaseq}
 \alias{read_rnaseq}
-\title{Reads RNA sequencing data from TCGA for several samples.}
+\title{Reads Level 3 RNA sequencing data from GDC.}
 \usage{
-read_rnaseq(manifest, folder, features = "genes", normalization = "raw",
-  progress = TRUE)
+read_rnaseq(manifest, folder, normalization = "counts", progress = TRUE)
 }
 \arguments{
 \item{manifest}{Path to the GDC file manifest.}
 
 \item{folder}{Folder where the data files reside.}
 
-\item{features}{The feature type. Must be one of "genes", "isoforms",
-"junctions" or "exons".}
-
 \item{normalization}{The normalization method. Must be one of
 \describe{
-    \item{"raw"}{The raw counts.}
-    \item{"Q75"}{Normalization by dividing through the 75% quantile of the
-    raw counts (TCGA default). This only available for transcripts and
-    isoforms.}
-    \item{"XPM"}{X per million. This will use transcripts per million (TPM)
-    for genes and isoforms and reads per kilobase of transcript per million
-    (RPKM) for junctions and exons.}
+    \item{"counts"}{The raw counts.}
+    \item{"FPKM"}{Fragments Per Kilobase of transcript per Million mapped
+    reads.}
+    \item{"FPKM-UQ"}{Fragments Per Kilobase of transcript per Million mapped
+    reads with Upper Quartile normlization.}
 }}
 
 \item{progress}{Logical. Show progress info?}
@@ -33,7 +27,7 @@ A data table containing the features as rows and the samples in the
  columns.
 }
 \description{
-Reads RNASeqV2 Level 3 data downloaded from TCGA. The functions does some
+Reads RNASeq Level 3 data downloaded from GDC. The functions does some
 conservative checking in order to validate that all samples and features are
 annotated correctly. Also note that duplicate data (files with the same
 extract name) will be treated as independent duplicates for the same sample.
@@ -46,7 +40,7 @@ extract name) will be treated as independent duplicates for the same sample.
 
 }
 \seealso{
-\code{\link{read_huex}} to read exon expression data.
+\code{\link{read_rnaseq_legacy}} to read legacy data.
 }
 \keyword{GDC}
 \keyword{RNASeq}

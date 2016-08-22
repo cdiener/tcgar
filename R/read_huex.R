@@ -12,7 +12,7 @@ HUEX_SDRF_COLS <- c(13, 14, 17, 19, 24)
 HUEX_SDRF_NAMES <- c("name", "barcode", "label", "id", "panel")
 
 # To fix stupid CRAN notes
-utils::globalVariables(c("barcode", "id", "filename"))
+utils::globalVariables(c("barcode", "id", "filename", "genemap", "gdc_files"))
 
 #' Reads HuEx 1.0 st v2 exon expression data.
 #'
@@ -96,17 +96,3 @@ read_huex <- function(manifest, folder, features="genes", progress=TRUE) {
 
     return(list(assay=arrays, samples=sdrf, features=feat))
 }
-
-#' Gene annotations for the TCGA HuEx data.
-#'
-#' This data set contains additional annotations for the HuEx features obtained
-#' from BioMart.
-#'
-#' @format A data frame with 18632 rows and 4 variables:
-#' \describe{
-#'   \item{ensgene}{Ensembl Gene ID}
-#'   \item{description}{Description of the Gene}
-#'   \item{symbol}{The Gene symbol}
-#'   \item{entrez}{Entrez Gene ID}
-#' }
-"huex_bm"

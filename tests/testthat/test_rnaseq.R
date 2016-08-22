@@ -9,45 +9,29 @@ context("RNA-Seq")
 manifest <- system.file("extdata", "manifest.tsv", package="tcgar")
 d <- tempdir()
 
-test_that("RNASeq per-gene data can be read", {
+test_that("RNA-Seq counts can be read", {
     rna <- read_rnaseq(manifest, d, progress=FALSE)
     expect_equal(names(rna), c("counts", "features", "samples"))
-    expect_equal(ncol(rna$counts), 2)
-    expect_equal(names(rna$features), c("symbol", "entrez"))
-    expect_equal(nrow(rna$samples), 2)
+    expect_equal(ncol(rna$counts), 1)
+    expect_equal(names(rna$features),
+        c("ensgene", "description", "symbol", "entrez"))
+    expect_equal(nrow(rna$samples), 1)
 })
 
-test_that("normalized RNASeq per-gene data can be read", {
-    rna <- read_rnaseq(manifest, d, normalization="Q75", progress=FALSE)
+test_that("RNA-Seq FPKM can be read", {
+    rna <- read_rnaseq(manifest, d, normalization="FPKM", progress=FALSE)
     expect_equal(names(rna), c("counts", "features", "samples"))
-    expect_equal(ncol(rna$counts), 2)
-    expect_equal(names(rna$features), c("symbol", "entrez"))
-    expect_equal(nrow(rna$samples), 2)
+    expect_equal(ncol(rna$counts), 1)
+    expect_equal(names(rna$features),
+        c("ensgene", "description", "symbol", "entrez"))
+    expect_equal(nrow(rna$samples), 1)
 })
 
-test_that("RNASeq junction data can be loaded", {
-    rna <- read_rnaseq(manifest, d, features="junctions", progress=FALSE)
+test_that("RNA-Seq FPKM-UQ can be read", {
+    rna <- read_rnaseq(manifest, d, normalization="FPKM-UQ", progress=FALSE)
     expect_equal(names(rna), c("counts", "features", "samples"))
-    expect_equal(class(rna$counts), "matrix")
-    expect_equal(dim(rna$counts)[2], 2)
-    expect_equal(names(rna$features), "junction")
-    expect_equal(nrow(rna$samples), 2)
-})
-
-test_that("RNASeq exon data can be loaded", {
-    rna <- read_rnaseq(manifest, d, features="exons", progress=FALSE)
-    expect_equal(names(rna), c("counts", "features", "samples"))
-    expect_equal(class(rna$counts), "matrix")
-    expect_equal(dim(rna$counts)[2], 2)
-    expect_equal(names(rna$features), c("exon", "median_length_normalized"))
-    expect_equal(nrow(rna$samples), 2)
-})
-
-test_that("RNASeq isoform data can be loaded", {
-    rna <- read_rnaseq(manifest, d, features="isoforms", progress=FALSE)
-    expect_equal(names(rna), c("counts", "features", "samples"))
-    expect_equal(class(rna$counts), "matrix")
-    expect_equal(dim(rna$counts)[2], 2)
-    expect_equal(names(rna$features), "isoform_id")
-    expect_equal(nrow(rna$samples), 2)
+    expect_equal(ncol(rna$counts), 1)
+    expect_equal(names(rna$features),
+        c("ensgene", "description", "symbol", "entrez"))
+    expect_equal(nrow(rna$samples), 1)
 })

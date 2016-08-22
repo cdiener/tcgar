@@ -27,6 +27,7 @@ utils::globalVariables("cases")
 #' @export
 #' @importFrom jsonlite fromJSON
 #' @importFrom data.table as.data.table
+#' @importFrom curl curl
 list_files <- function(query="default", unique_patient=TRUE) {
     if (query == "default")
         query <- sprintf("%sfields=%s&pretty=true&size=1000000",
@@ -60,4 +61,4 @@ list_files <- function(query="default", unique_patient=TRUE) {
 #'   \item{patient_uuid}{Unique ID for the patient the data came from.}
 #'   \item{barcode}{Barcode for the patient the data came from.}
 #' }
-"files"
+"gdc_files"

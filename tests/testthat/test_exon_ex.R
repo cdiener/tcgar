@@ -6,7 +6,7 @@
 
 context("HuEx 1.0 ST v2")
 
-manifest <- system.file("extdata", "manifest.tsv", package="tcgar")
+manifest <- system.file("extdata", "manifest_legacy.tsv", package="tcgar")
 d <- tempdir()
 
 test_that("Summarized exon expression data can be loaded", {
