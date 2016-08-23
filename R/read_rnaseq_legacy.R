@@ -132,7 +132,9 @@ read_rnaseq_legacy <- function(manifest, folder, features="genes", normalization
     is_tumor <- as.numeric(sapply(sdrf$barcode, substr, 14, 15)) < 10
     sdrf$tumor <- is_tumor
     sdrf$panel <- toupper(str_match(sdrf$panel, RNA_PANEL_RE)[,2])
-    sdrf[, "barcode" := sapply(barcode, substr, 0, 16)]
+    sdrf[, "sample_barcode" := sapply(barcode, substr, 0, 16)]
+    sdrf[, "patient_barcode" := sapply(barcode, substr, 0, 12)]
+    sdrf[, barcode := NULL]
 
     # Some of the public downloads are missing files, also order the names
     setkey(sdrf, "name")

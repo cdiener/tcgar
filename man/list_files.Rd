@@ -4,14 +4,14 @@
 \alias{list_files}
 \title{Obtains infromation about the files in GDC.}
 \usage{
-list_files(query = "default", unique_patient = TRUE)
+list_files(query = "default", unique = TRUE)
 }
 \arguments{
 \item{query}{Optional. The GDC query to be used. By default downloads
 detailed information for all files in the GDC.}
 
-\item{unique_patient}{optional boolean. Whether only to return file info
-for file that can be mapped to a single patient.}
+\item{unique}{optional boolean. Whether only to return file info
+for file that can be mapped to a unique patient and sample (if applicable).}
 }
 \value{
 A data table mapping files to various ids and the the patient

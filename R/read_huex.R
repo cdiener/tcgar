@@ -65,7 +65,9 @@ read_huex <- function(manifest, folder, features="genes", progress=TRUE) {
     is_tumor <- as.numeric(sapply(sdrf$barcode, substr, 14, 15)) < 10
     sdrf$tumor <- is_tumor
     sdrf$panel <- toupper(str_match(sdrf$panel, PANEL_RE)[,2])
-    sdrf[, "barcode" := sapply(barcode, substr, 0, 16)]
+    sdrf[, "sample_barcode" := sapply(barcode, substr, 0, 16)]
+    sdrf[, "patient_barcode" := sapply(barcode, substr, 0, 12)]
+    sdrf[, barcode := NULL]
 
     afun <- ifelse(progress, pblapply, lapply)
     if(progress) cat("Reading HuEx arrays: \n")
@@ -92,7 +94,7 @@ read_huex <- function(manifest, folder, features="genes", progress=TRUE) {
     sdrf <- sdrf[order(id)]
     arrays <- arrays[, ids]
 
-    colnames(arrays) <- sdrf$barcode
+    colnames(arrays) <- sdrf$id
 
     return(list(assay=arrays, samples=sdrf, features=feat))
 }

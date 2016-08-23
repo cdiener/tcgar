@@ -14,6 +14,7 @@ test_that("Summarized exon expression data can be loaded", {
     expect_equal(names(huex), c("assay", "samples", "features"))
     expect_equal(class(huex$assay), "matrix")
     expect_equal(ncol(huex$assay), 50)
-    expect_equal(names(huex$samples), c("name", "barcode", "label", "id", "panel", "tumor"))
+    expect_equal(names(huex$samples), c("name", "label", "id", "panel", "tumor",
+        "sample_barcode", "patient_barcode"))
     expect_equal(names(huex$features), "symbol")
 })
