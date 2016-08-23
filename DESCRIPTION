@@ -1,6 +1,6 @@
 Package: tcgar
 Title: A small helper package for using data from the Genomic Data Commons
-Version: 0.2.1
+Version: 0.2.2
 Authors@R: person("Christian", "Diener", email = "mail@cdiener.com", role = c("aut", "cre"))
 Description: tcgar helps you to obtain and parse data from GDC for use in analysis
     pipelines such as the ones in bioconductor. In comparison to other packages

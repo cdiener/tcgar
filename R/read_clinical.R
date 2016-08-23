@@ -52,6 +52,7 @@ read_clinical <- function(manifest, folder, progress=TRUE) {
     files <- man[grep(XML_RE, filename)]
     afun <- ifelse(progress, pbapply, apply)
 
+    cat("Reading clinical data:\n")
     patients <- afun(files, 1, function(fi) {
         xml_doc <- read_xml(file.path(folder, fi["id"], fi["filename"]))
         ns <- fix_ns(xml_ns(xml_doc))

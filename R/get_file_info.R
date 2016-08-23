@@ -37,7 +37,7 @@ list_files <- function(query="default", unique_patient=TRUE) {
     fi <- as.data.table(json$data$hits)
     if (unique_patient) {
         fi <- fi[sapply(cases, nrow) == 1]
-        fi[, c("patient_uuid", "barcode") := rbindlist(cases)]
+        fi[, c("patient_uuid", "patient_barcode") := rbindlist(cases)]
         fi[, cases := NULL]
     }
 

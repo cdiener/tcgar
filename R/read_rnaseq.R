@@ -67,7 +67,7 @@ read_rnaseq <- function(manifest, folder, normalization="counts",
     feat <- merge(feat, genemap, by="ensgene", all.x=TRUE)
 
     if(progress) {
-        cat("Reading assays:\n")
+        cat("Reading RNA-Seq counts:\n")
         pb <- startpb(min=0, max=nrow(files))
         on.exit(closepb(pb))
     }

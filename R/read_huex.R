@@ -46,7 +46,7 @@ read_huex <- function(manifest, folder, features="genes", progress=TRUE) {
 
     afun <- ifelse(progress, pbapply, apply)
 
-    if(progress) cat("Getting annotations: \n")
+    if(progress) cat("Reading HuEx annotations: \n")
     sdrfs <- afun(files, 1, function(fi) {
         path <- file.path(folder, fi["id"])
         mage <- find_dir(path, "mage-tab")
@@ -68,7 +68,7 @@ read_huex <- function(manifest, folder, features="genes", progress=TRUE) {
     sdrf[, "barcode" := sapply(barcode, substr, 0, 16)]
 
     afun <- ifelse(progress, pblapply, lapply)
-    if(progress) cat("Reading arrays: \n")
+    if(progress) cat("Reading HuEx arrays: \n")
     arrays <- afun(1:nrow(files), function(i) {
         fi <- files[i]
         path <- file.path(folder, fi[, id], fi[, filename])
