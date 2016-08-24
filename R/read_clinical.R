@@ -20,7 +20,7 @@ COLS <- c("patient_uuid" = "//shared:bcr_patient_uuid",
     "residual_tumor" = "//clin_shared:residual_tumor")
 COUNTS <- c("new_tumor_events" = "//nte:new_tumor_event_after_initial_treatment",
     "follow_ups" = "//clin_shared:bcr_followup_uuid")
-TO_NUM <- c("days_to_contact", "days_to_birth", "days_to_birth")
+TO_NUM <- c("days_to_contact", "days_to_birth", "days_to_birth", "days_to_death")
 TO_LOWER <- c("patient_uuid", "gender")
 
 XML_RE <- "\\.xml"
