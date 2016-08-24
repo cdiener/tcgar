@@ -4,9 +4,9 @@
 
 GDC_BASE <- "https://gdc-api.nci.nih.gov/files?"
 fields <- c("file_id", "file_name", "md5sum",
-    "cases.case_id", "cases.submitter_id", "cases.samples.sample_id",
-    "cases.samples.submitter_id", "data_category", "data_type",
-    "experimental_strategy", "updated_datetime")
+    "cases.case_id", "cases.submitter_id", "cases.project.project_id",
+    "cases.samples.sample_id", "cases.samples.submitter_id", "data_category",
+    "data_type", "experimental_strategy", "updated_datetime")
 
 # To fix stupid CRAN notes
 utils::globalVariables(c("cases", "case_id", "submitter_id", "."))
@@ -35,7 +35,7 @@ count_ids <- function(case) {
 #'
 #' @export
 #' @importFrom jsonlite fromJSON
-#' @importFrom data.table as.data.table
+#' @importFrom data.table as.data.table tstrsplit
 #' @importFrom curl curl
 list_files <- function(query="default", unique=TRUE) {
     if (query == "default")
@@ -44,6 +44,8 @@ list_files <- function(query="default", unique=TRUE) {
 
     json <- fromJSON(query)
     fi <- as.data.table(json$data$hits)
+    pid <- sapply(fi$cases, function(x) x$project$project_id[1])
+    fi[, c("project", "panel") := tstrsplit(pid, "-")]
     if (unique) {
         counts <- sapply(fi$cases, count_ids)
         fi <- fi[counts[1, ] == 1 & counts[2, ] <= 1]
@@ -54,6 +56,7 @@ list_files <- function(query="default", unique=TRUE) {
         fi[, c("sample_uuid", "sample_barcode") := rbindlist(sids)]
         fi[, c("patient_uuid", "patient_barcode") :=
             rbindlist(cases, fill=TRUE)[, .(case_id, submitter_id)]]
+
         fi[, cases := NULL]
         suppressWarnings(fi$tumor <-
             as.numeric(sapply(fi$sample_barcode, substr, 14, 15)) < 10)
@@ -77,6 +80,8 @@ list_files <- function(query="default", unique=TRUE) {
 #'   \item{file_name}{The filename of the file.}
 #'   \item{md5sum}{md5 hash for the file.}
 #'   \item{file_id}{The GDC UUID for the file.}
+#'   \item{project}{The project the sample came from.}
+#'   \item{panel}{The panel the sample came from.}
 #'   \item{data_category}{Category for the file.}
 #'   \item{experimental_strategy}{Type of experiment used to obtain the data.}
 #'   \item{sample_uuid}{Unique ID for the sample the data came from.}

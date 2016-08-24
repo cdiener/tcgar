@@ -11,6 +11,8 @@
   \item{file_name}{The filename of the file.}
   \item{md5sum}{md5 hash for the file.}
   \item{file_id}{The GDC UUID for the file.}
+  \item{project}{The project the sample came from.}
+  \item{panel}{The panel the sample came from.}
   \item{data_category}{Category for the file.}
   \item{experimental_strategy}{Type of experiment used to obtain the data.}
   \item{sample_uuid}{Unique ID for the sample the data came from.}
