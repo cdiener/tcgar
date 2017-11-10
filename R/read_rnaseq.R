@@ -52,8 +52,8 @@ read_rnaseq <- function(manifest, folder, normalization="counts",
         files <- man[grep(RNA_FILE_EXT[normalization], filename)]
     } else stop("Not a valid normalization method!")
 
-    files <- files[id %in% gdc_files$file_id]
-    samples <- gdc_files
+    files <- files[id %in% tcgar::gdc_files$file_id]
+    samples <- tcgar::gdc_files
     setkey(samples, "file_id")
     samples <- samples[files$id]
     setkey(samples, NULL)
@@ -64,13 +64,14 @@ read_rnaseq <- function(manifest, folder, normalization="counts",
     feat <- fread(ext, select=1, col.names="ensgene")
     valid_ids <- grep("ENSG", feat$ensgene)
     feat <- data.table(ensgene=sub("\\..+", "", feat$ensgene[valid_ids]))
-    feat <- merge(feat, genemap, by="ensgene", all.x=TRUE)
+    feat <- merge(feat, tcgar::genemap, by="ensgene", all.x=TRUE)
 
     if(progress) {
         cat("Reading RNA-Seq counts:\n")
         pb <- startpb(min=0, max=nrow(files))
         on.exit(closepb(pb))
     }
+
     counts <- matrix(0, nrow=nrow(feat), ncol=nrow(files))  # pre-allocate
     for(i in 1:nrow(files)) {
         path <- files[i, file.path(folder, id, filename)]

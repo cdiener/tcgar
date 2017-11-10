@@ -37,4 +37,3 @@ This reads level 3 data for exon expression data.
 \keyword{HuEx}
 \keyword{TCGA}
 \keyword{microarray}
-

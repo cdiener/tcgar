@@ -4,12 +4,17 @@
 \alias{read_clinical}
 \title{Reads clinical data from TCGA for multiple samples.}
 \usage{
-read_clinical(manifest, folder, progress = TRUE)
+read_clinical(manifest, folder, additional = NULL, progress = TRUE)
 }
 \arguments{
 \item{manifest}{Path to the GDC file manifest.}
 
 \item{folder}{The folder that contains the data.}
+
+\item{additional}{A named vector with entries `name = xpath` where `name` is
+the column name that should be extracted and `xpath` is an XPath expression
+defining the XML tag that should be read. Entries will returned as
+unmodified strings.}
 
 \item{progress}{Whether to show progress information.}
 }
@@ -32,4 +37,3 @@ each patient from TCGA Biotab data.
 \keyword{TCGA}
 \keyword{clinical}
 \keyword{read}
-

@@ -35,6 +35,10 @@ XML_RE <- "\\.xml"
 #' @keywords clinical TCGA read GDC
 #' @param manifest Path to the GDC file manifest.
 #' @param folder The folder that contains the data.
+#' @param additional A named vector with entries `name = xpath` where `name` is
+#' the column name that should be extracted and `xpath` is an XPath expression
+#' defining the XML tag that should be read. Entries will returned as
+#' unmodified strings.
 #' @param progress Whether to show progress information.
 #' @return A data table containing the information for patients on its rows.
 #' @examples
@@ -47,19 +51,20 @@ XML_RE <- "\\.xml"
 #' @importFrom xml2 read_xml xml_find_all xml_text xml_ns
 #' @importFrom data.table rbindlist
 #' @importFrom pbapply pbapply pblapply
-read_clinical <- function(manifest, folder, progress=TRUE) {
+read_clinical <- function(manifest, folder, additional=NULL, progress=TRUE) {
     man <- fread(manifest)
     files <- man[grep(XML_RE, filename)]
     afun <- ifelse(progress, pbapply, apply)
+    items <- c(COLS, additional)
 
     if (progress) cat("Reading clinical data:\n")
     patients <- afun(files, 1, function(fi) {
         xml_doc <- read_xml(file.path(folder, fi["id"], fi["filename"]))
         ns <- fix_ns(xml_ns(xml_doc))
-        vals <- sapply(COLS, function(co)
+        vals <- sapply(items, function(co)
             xml_doc %>% xml_find_all(co, ns=ns) %>% xml_text() %>% last_or_na()
         )
-        names(vals) <- names(COLS)
+        names(vals) <- names(items)
         counts <- sapply(COUNTS, function(co)
             xml_doc %>% xml_find_all(co, ns=ns) %>% xml_text() %>% length()
         )

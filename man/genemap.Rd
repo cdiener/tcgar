@@ -19,4 +19,3 @@ This data set contains additional annotations for genes
 obtained from BioMart.
 }
 \keyword{datasets}
-

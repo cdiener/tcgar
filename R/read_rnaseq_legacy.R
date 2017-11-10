@@ -149,7 +149,7 @@ read_rnaseq_legacy <- function(manifest, folder, features="genes", normalization
     if (features == "genes") {
         feat[, "entrez" := sub(".+\\|", "", gene_id)]
         feat[, "gene_id" := NULL]
-        feat <- merge(feat, unique(genemap, by="entrez"), by="entrez",
+        feat <- merge(feat, unique(tcgar::genemap, by="entrez"), by="entrez",
             all.x=TRUE)
     }
 

@@ -33,4 +33,3 @@ a valid manifest use the portal at \url{https://gdc-portal.nci.nih.gov/}.
 \keyword{GDC}
 \keyword{TCGA,}
 \keyword{download,}
-
